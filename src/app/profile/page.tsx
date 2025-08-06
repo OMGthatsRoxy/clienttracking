@@ -827,22 +827,24 @@ export default function ProfilePage() {
         <div style={{ 
           maxWidth: 1200,
           width: "100%",
-          marginBottom: isMobile ? 16 : 32, 
+          marginBottom: isMobile ? 12 : 24, 
           background: "#23232a",
           borderRadius: 12,
-          padding: isMobile ? "16px" : "20px",
+          padding: isMobile ? "12px 16px" : "16px 20px",
           border: "1px solid #333",
           textAlign: "center"
         }}>
           <h1 style={{ 
-            fontSize: isMobile ? "clamp(24px, 6vw, 36px)" : "36px",
+            fontSize: isMobile ? "clamp(20px, 5vw, 28px)" : "28px",
             fontWeight: 700, 
             color: "#fff",
-            marginBottom: isMobile ? 4 : 8
+            marginBottom: isMobile ? 2 : 4,
+            marginTop: 0
           }}>{t('profile')}</h1>
           <p style={{ 
             color: "#a1a1aa",
-            fontSize: isMobile ? "clamp(12px, 3vw, 14px)" : "16px"
+            fontSize: isMobile ? "clamp(11px, 2.5vw, 13px)" : "14px",
+            margin: 0
           }}>{t('profileDescription')}</p>
         </div>
 
