@@ -3,26 +3,36 @@
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useLanguage } from "@/features/language/LanguageProvider";
 import { useState, useEffect } from "react";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Coach } from "@/types/coach";
-import type { Client } from "@/types/client";
-import type { Prospect } from "@/types/prospect";
-import type { LessonRecord } from "@/types/lessonRecord";
-import type { Package } from "@/types/package";
-import type { ScheduleItem } from "@/types/schedule";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
+interface UserData {
+  uid: string;
+  email: string;
+  displayName?: string;
+  phone?: string;
+  bio?: string;
+  specialties?: string[];
+  experience?: number;
+  certifications?: string[];
+  education?: string;
+  location?: string;
+  languages?: string[];
+  isPublic?: boolean;
+  avatar?: string;
+  createdAt?: string;
+  lastLoginAt?: string;
+}
+
 interface UserStats {
-  totalClients: number;
-  totalProspects: number;
-  totalLessonRecords: number;
-  totalPackages: number;
-  totalSchedules: number;
-  totalIncome: number;
-  activeClients: number;
-  completedLessons: number;
+  clientsCount: number;
+  prospectsCount: number;
+  lessonRecordsCount: number;
+  packagesCount: number;
+  schedulesCount: number;
 }
 
 export default function UserDetailPage() {
@@ -32,19 +42,18 @@ export default function UserDetailPage() {
   const params = useParams();
   const userId = params.id as string;
   
-  const [coach, setCoach] = useState<Coach | null>(null);
-  const [stats, setStats] = useState<UserStats>({
-    totalClients: 0,
-    totalProspects: 0,
-    totalLessonRecords: 0,
-    totalPackages: 0,
-    totalSchedules: 0,
-    totalIncome: 0,
-    activeClients: 0,
-    completedLessons: 0
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userStats, setUserStats] = useState<UserStats>({
+    clientsCount: 0,
+    prospectsCount: 0,
+    lessonRecordsCount: 0,
+    packagesCount: 0,
+    schedulesCount: 0
   });
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<UserData | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     // 检查是否为管理员
@@ -71,25 +80,37 @@ export default function UserDetailPage() {
       try {
         setLoading(true);
         
-        // 获取教练基本信息
+        // 获取用户基本信息
         const coachDoc = await getDoc(doc(db, "coaches", userId));
         if (!coachDoc.exists()) {
           alert("用户不存在");
           router.push('/admin');
           return;
         }
-        
-        const coachData = { id: coachDoc.id, ...coachDoc.data() } as Coach;
-        setCoach(coachData);
 
-        // 获取统计数据
-        const [
-          clientsSnapshot,
-          prospectsSnapshot,
-          lessonRecordsSnapshot,
-          packagesSnapshot,
-          schedulesSnapshot
-        ] = await Promise.all([
+        const coachData = coachDoc.data() as Coach;
+        const userInfo: UserData = {
+          uid: coachDoc.id,
+          email: coachData.email || "未知邮箱",
+          displayName: coachData.displayName || "未设置姓名",
+          phone: coachData.phone || "未设置电话",
+          bio: coachData.bio || "未设置简介",
+          specialties: coachData.specialties || [],
+          experience: coachData.experience || 0,
+          certifications: coachData.certifications || [],
+          education: coachData.education || "未设置教育背景",
+          location: coachData.location || "未设置位置",
+          languages: coachData.languages || [],
+          isPublic: coachData.isPublic || false,
+          avatar: coachData.avatar || "",
+          createdAt: coachData.createdAt || "未知",
+          lastLoginAt: coachData.lastLoginAt || "未知"
+        };
+
+        setUserData(userInfo);
+
+        // 获取用户统计数据
+        const [clientsSnapshot, prospectsSnapshot, lessonRecordsSnapshot, packagesSnapshot, schedulesSnapshot] = await Promise.all([
           getDocs(query(collection(db, "clients"), where("coachId", "==", userId))),
           getDocs(query(collection(db, "prospects"), where("coachId", "==", userId))),
           getDocs(query(collection(db, "lessonRecords"), where("coachId", "==", userId))),
@@ -97,24 +118,12 @@ export default function UserDetailPage() {
           getDocs(query(collection(db, "schedules"), where("coachId", "==", userId)))
         ]);
 
-        // 计算统计数据
-        const clients = clientsSnapshot.docs.map(doc => doc.data() as Client);
-        const lessonRecords = lessonRecordsSnapshot.docs.map(doc => doc.data() as LessonRecord);
-        const packages = packagesSnapshot.docs.map(doc => doc.data() as Package);
-
-        const totalIncome = packages.reduce((sum, pkg) => sum + (pkg.price || 0), 0);
-        const activeClients = clients.filter(c => c.status === 'active').length;
-        const completedLessons = lessonRecords.filter(r => r.status === 'completed').length;
-
-        setStats({
-          totalClients: clientsSnapshot.size,
-          totalProspects: prospectsSnapshot.size,
-          totalLessonRecords: lessonRecordsSnapshot.size,
-          totalPackages: packagesSnapshot.size,
-          totalSchedules: schedulesSnapshot.size,
-          totalIncome,
-          activeClients,
-          completedLessons
+        setUserStats({
+          clientsCount: clientsSnapshot.size,
+          prospectsCount: prospectsSnapshot.size,
+          lessonRecordsCount: lessonRecordsSnapshot.size,
+          packagesCount: packagesSnapshot.size,
+          schedulesCount: schedulesSnapshot.size
         });
 
       } catch (error) {
@@ -133,6 +142,73 @@ export default function UserDetailPage() {
       window.removeEventListener('resize', checkMobile);
     };
   }, [user, router, userId]);
+
+  // 删除用户及其所有数据
+  const handleDeleteUser = async (userData: UserData) => {
+    if (!userData.uid) return;
+    
+    try {
+      setDeletingUserId(userData.uid);
+      
+      const batch = writeBatch(db);
+      
+      // 删除教练基本信息
+      const coachRef = doc(db, "coaches", userData.uid);
+      batch.delete(coachRef);
+      
+      // 删除该教练的所有客户
+      const clientsSnapshot = await getDocs(
+        query(collection(db, "clients"), where("coachId", "==", userData.uid))
+      );
+      clientsSnapshot.docs.forEach((clientDoc) => {
+        batch.delete(clientDoc.ref);
+      });
+      
+      // 删除该教练的所有潜在客户
+      const prospectsSnapshot = await getDocs(
+        query(collection(db, "prospects"), where("coachId", "==", userData.uid))
+      );
+      prospectsSnapshot.docs.forEach((prospectDoc) => {
+        batch.delete(prospectDoc.ref);
+      });
+      
+      // 删除该教练的所有课程记录
+      const lessonRecordsSnapshot = await getDocs(
+        query(collection(db, "lessonRecords"), where("coachId", "==", userData.uid))
+      );
+      lessonRecordsSnapshot.docs.forEach((recordDoc) => {
+        batch.delete(recordDoc.ref);
+      });
+      
+      // 删除该教练的所有套餐
+      const packagesSnapshot = await getDocs(
+        query(collection(db, "packages"), where("coachId", "==", userData.uid))
+      );
+      packagesSnapshot.docs.forEach((packageDoc) => {
+        batch.delete(packageDoc.ref);
+      });
+      
+      // 删除该教练的所有排课
+      const schedulesSnapshot = await getDocs(
+        query(collection(db, "schedules"), where("coachId", "==", userData.uid))
+      );
+      schedulesSnapshot.docs.forEach((scheduleDoc) => {
+        batch.delete(scheduleDoc.ref);
+      });
+      
+      // 执行批量删除
+      await batch.commit();
+      
+      alert(`用户 ${userData.displayName} 及其所有数据已成功删除`);
+      router.push('/admin');
+      
+    } catch (error) {
+      console.error("删除用户失败:", error);
+      alert("删除用户失败，请重试");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
 
   const containerStyle = {
     minHeight: "100vh",
@@ -153,7 +229,7 @@ export default function UserDetailPage() {
   };
 
   const cardStyle = {
-    maxWidth: 1200,
+    maxWidth: 800,
     width: "100%",
     marginBottom: isMobile ? 8 : 12,
     background: "#23232a",
@@ -182,7 +258,7 @@ export default function UserDetailPage() {
     );
   }
 
-  if (!coach) {
+  if (!userData) {
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
@@ -196,21 +272,19 @@ export default function UserDetailPage() {
     <div style={containerStyle}>
       {/* 返回按钮 */}
       <div style={cardStyle}>
-        <Link href="/admin" style={{ textDecoration: "none" }}>
-          <button style={{
-            background: "#23232a",
-            color: "#60a5fa",
-            border: "1px solid #60a5fa",
-            borderRadius: 6,
-            padding: "8px 16px",
-            cursor: "pointer",
-            fontSize: 14,
-            display: "flex",
+        <Link 
+          href="/admin"
+          style={{
+            display: "inline-flex",
             alignItems: "center",
-            gap: 8
-          }}>
-            ← 返回用户列表
-          </button>
+            gap: 8,
+            color: "#60a5fa",
+            textDecoration: "none",
+            fontSize: 14,
+            fontWeight: 500
+          }}
+        >
+          ← 返回用户列表
         </Link>
       </div>
 
@@ -220,25 +294,25 @@ export default function UserDetailPage() {
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
           gap: 16,
-          alignItems: isMobile ? "center" : "flex-start"
+          alignItems: isMobile ? "flex-start" : "center"
         }}>
           {/* 用户头像 */}
           <div style={{
-            width: 100,
-            height: 100,
+            width: 80,
+            height: 80,
             borderRadius: "50%",
-            background: coach.avatar ? "transparent" : "#60a5fa",
+            background: userData.avatar ? "transparent" : "#60a5fa",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 32,
+            fontSize: 24,
             fontWeight: 600,
             color: "#18181b",
             flexShrink: 0
           }}>
-            {coach.avatar ? (
+            {userData.avatar ? (
               <img
-                src={coach.avatar}
+                src={userData.avatar}
                 alt="用户头像"
                 style={{
                   width: "100%",
@@ -248,11 +322,11 @@ export default function UserDetailPage() {
                 }}
               />
             ) : (
-              coach.displayName?.charAt(0).toUpperCase() || "U"
+              userData.displayName?.charAt(0).toUpperCase() || "U"
             )}
           </div>
 
-          {/* 用户信息 */}
+          {/* 用户基本信息 */}
           <div style={{ flex: 1 }}>
             <h1 style={{
               fontSize: isMobile ? "clamp(24px, 6vw, 32px)" : "32px",
@@ -260,134 +334,59 @@ export default function UserDetailPage() {
               color: "#fff",
               marginBottom: 8
             }}>
-              {coach.displayName || "未设置姓名"}
+              {userData.displayName}
             </h1>
-            
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: 12,
-              fontSize: 14,
-              color: "#a1a1aa"
+            <p style={{
+              fontSize: 16,
+              color: "#a1a1aa",
+              marginBottom: 4
             }}>
-              <div>
-                <strong>邮箱:</strong> {coach.email || "未设置"}
-              </div>
-              {coach.phone && (
-                <div>
-                  <strong>电话:</strong> {coach.phone}
-                </div>
-              )}
-              {coach.location && (
-                <div>
-                  <strong>位置:</strong> {coach.location}
-                </div>
-              )}
-              {coach.experience && (
-                <div>
-                  <strong>经验:</strong> {coach.experience} 年
-                </div>
-              )}
-              {coach.education && (
-                <div>
-                  <strong>教育:</strong> {coach.education}
-                </div>
-              )}
-            </div>
-
-            {coach.bio && (
-              <div style={{ marginTop: 12 }}>
-                <strong style={{ color: "#fff" }}>简介:</strong>
-                <p style={{ color: "#a1a1aa", margin: "4px 0 0 0", lineHeight: 1.4 }}>
-                  {coach.bio}
-                </p>
-              </div>
+              📧 {userData.email}
+            </p>
+            {userData.phone && (
+              <p style={{
+                fontSize: 16,
+                color: "#a1a1aa",
+                marginBottom: 4
+              }}>
+                📞 {userData.phone}
+              </p>
             )}
-
-            {coach.specialties && coach.specialties.length > 0 && (
-              <div style={{ marginTop: 12 }}>
-                <strong style={{ color: "#fff" }}>专长:</strong>
-                <div style={{ 
-                  display: "flex", 
-                  flexWrap: "wrap", 
-                  gap: 6, 
-                  marginTop: 4 
-                }}>
-                  {coach.specialties.map((specialty, index) => (
-                    <span key={index} style={{
-                      padding: "2px 8px",
-                      borderRadius: 12,
-                      background: "#60a5fa",
-                      color: "#18181b",
-                      fontSize: 12
-                    }}>
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {coach.certifications && coach.certifications.length > 0 && (
-              <div style={{ marginTop: 12 }}>
-                <strong style={{ color: "#fff" }}>认证:</strong>
-                <div style={{ 
-                  display: "flex", 
-                  flexWrap: "wrap", 
-                  gap: 6, 
-                  marginTop: 4 
-                }}>
-                  {coach.certifications.map((cert, index) => (
-                    <span key={index} style={{
-                      padding: "2px 8px",
-                      borderRadius: 12,
-                      background: "#10b981",
-                      color: "#fff",
-                      fontSize: 12
-                    }}>
-                      {cert}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {coach.languages && coach.languages.length > 0 && (
-              <div style={{ marginTop: 12 }}>
-                <strong style={{ color: "#fff" }}>语言:</strong>
-                <div style={{ 
-                  display: "flex", 
-                  flexWrap: "wrap", 
-                  gap: 6, 
-                  marginTop: 4 
-                }}>
-                  {coach.languages.map((lang, index) => (
-                    <span key={index} style={{
-                      padding: "2px 8px",
-                      borderRadius: 12,
-                      background: "#8b5cf6",
-                      color: "#fff",
-                      fontSize: 12
-                    }}>
-                      {lang}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div style={{ marginTop: 12 }}>
+            <div style={{
+              display: "flex",
+              gap: 8,
+              marginTop: 8
+            }}>
               <span style={{
                 padding: "4px 8px",
                 borderRadius: 4,
-                background: coach.isPublic ? "#10b981" : "#6b7280",
+                background: userData.isPublic ? "#10b981" : "#6b7280",
                 color: "#fff",
                 fontSize: 12
               }}>
-                {coach.isPublic ? "公开资料" : "私密资料"}
+                {userData.isPublic ? "公开" : "私密"}
               </span>
             </div>
           </div>
+
+          {/* 删除按钮 */}
+          <button
+            onClick={() => setDeleteConfirmUser(userData)}
+            disabled={deletingUserId === userData.uid}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 6,
+              background: "#ef4444",
+              color: "#fff",
+              border: "none",
+              fontSize: 14,
+              cursor: deletingUserId === userData.uid ? "not-allowed" : "pointer",
+              opacity: deletingUserId === userData.uid ? 0.6 : 1,
+              flexShrink: 0
+            }}
+          >
+            {deletingUserId === userData.uid ? "删除中..." : "删除用户"}
+          </button>
         </div>
       </div>
 
@@ -397,140 +396,49 @@ export default function UserDetailPage() {
           fontSize: 20,
           fontWeight: 600,
           color: "#fff",
-          marginBottom: 16,
-          textAlign: "center"
+          marginBottom: 16
         }}>
           数据统计
         </h2>
-        
         <div style={{
           display: "grid",
-          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
-          gap: 16
+          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)",
+          gap: 12
         }}>
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#60a5fa" }}>
-              {stats.totalClients}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 24, fontWeight: 600, color: "#60a5fa" }}>
+              {userStats.clientsCount}
             </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              总客户数
-            </div>
+            <div style={{ fontSize: 12, color: "#a1a1aa" }}>客户</div>
           </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#10b981" }}>
-              {stats.activeClients}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 24, fontWeight: 600, color: "#10b981" }}>
+              {userStats.prospectsCount}
             </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              活跃客户
-            </div>
+            <div style={{ fontSize: 12, color: "#a1a1aa" }}>潜在客户</div>
           </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#f59e0b" }}>
-              {stats.totalLessonRecords}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 24, fontWeight: 600, color: "#f59e0b" }}>
+              {userStats.lessonRecordsCount}
             </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              课程记录
-            </div>
+            <div style={{ fontSize: 12, color: "#a1a1aa" }}>课程记录</div>
           </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#8b5cf6" }}>
-              {stats.completedLessons}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 24, fontWeight: 600, color: "#8b5cf6" }}>
+              {userStats.packagesCount}
             </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              已完成课程
-            </div>
+            <div style={{ fontSize: 12, color: "#a1a1aa" }}>套餐</div>
           </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#ec4899" }}>
-              {stats.totalProspects}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 24, fontWeight: 600, color: "#ec4899" }}>
+              {userStats.schedulesCount}
             </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              潜在客户
-            </div>
-          </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#06b6d4" }}>
-              {stats.totalPackages}
-            </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              套餐数量
-            </div>
-          </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#3b82f6" }}>
-              {stats.totalSchedules}
-            </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              排课数量
-            </div>
-          </div>
-
-          <div style={{
-            textAlign: "center",
-            padding: "16px",
-            background: "#18181b",
-            borderRadius: 8,
-            border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#10b981" }}>
-              ¥{stats.totalIncome.toLocaleString()}
-            </div>
-            <div style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
-              总收入
-            </div>
+            <div style={{ fontSize: 12, color: "#a1a1aa" }}>排课</div>
           </div>
         </div>
       </div>
 
-      {/* 注册信息 */}
+      {/* 详细信息 */}
       <div style={cardStyle}>
         <h2 style={{
           fontSize: 20,
@@ -538,30 +446,214 @@ export default function UserDetailPage() {
           color: "#fff",
           marginBottom: 16
         }}>
-          账户信息
+          详细信息
         </h2>
-        
         <div style={{
           display: "grid",
           gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
-          gap: 12,
-          fontSize: 14,
-          color: "#a1a1aa"
+          gap: 16
+        }}>
+          {userData.bio && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>简介</h3>
+              <p style={{ color: "#a1a1aa", fontSize: 14, lineHeight: 1.5 }}>{userData.bio}</p>
+            </div>
+          )}
+          
+          {userData.specialties && userData.specialties.length > 0 && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>专长</h3>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {userData.specialties.map((specialty, index) => (
+                  <span key={index} style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    background: "#60a5fa",
+                    color: "#fff",
+                    fontSize: 12
+                  }}>
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {userData.experience && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>经验</h3>
+              <p style={{ color: "#a1a1aa", fontSize: 14 }}>{userData.experience} 年</p>
+            </div>
+          )}
+
+          {userData.location && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>位置</h3>
+              <p style={{ color: "#a1a1aa", fontSize: 14 }}>{userData.location}</p>
+            </div>
+          )}
+
+          {userData.education && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>教育背景</h3>
+              <p style={{ color: "#a1a1aa", fontSize: 14 }}>{userData.education}</p>
+            </div>
+          )}
+
+          {userData.certifications && userData.certifications.length > 0 && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>认证</h3>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {userData.certifications.map((cert, index) => (
+                  <span key={index} style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    background: "#10b981",
+                    color: "#fff",
+                    fontSize: 12
+                  }}>
+                    {cert}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {userData.languages && userData.languages.length > 0 && (
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>语言</h3>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {userData.languages.map((lang, index) => (
+                  <span key={index} style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    background: "#f59e0b",
+                    color: "#fff",
+                    fontSize: 12
+                  }}>
+                    {lang}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 时间信息 */}
+      <div style={cardStyle}>
+        <h2 style={{
+          fontSize: 20,
+          fontWeight: 600,
+          color: "#fff",
+          marginBottom: 16
+        }}>
+          时间信息
+        </h2>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+          gap: 16
         }}>
           <div>
-            <strong>用户ID:</strong> {coach.id}
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>注册时间</h3>
+            <p style={{ color: "#a1a1aa", fontSize: 14 }}>{userData.createdAt}</p>
           </div>
           <div>
-            <strong>注册时间:</strong> {coach.createdAt || "未知"}
-          </div>
-          <div>
-            <strong>最后登录:</strong> {coach.lastLoginAt || "未知"}
-          </div>
-          <div>
-            <strong>最后更新:</strong> {coach.updatedAt || "未知"}
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>最后登录</h3>
+            <p style={{ color: "#a1a1aa", fontSize: 14 }}>{userData.lastLoginAt}</p>
           </div>
         </div>
       </div>
+
+      {/* 删除确认弹窗 */}
+      {deleteConfirmUser && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: isMobile ? '8px' : '16px'
+        }}>
+          <div style={{
+            background: '#18181b',
+            borderRadius: 12,
+            padding: isMobile ? '16px' : '24px',
+            maxWidth: isMobile ? '100%' : 400,
+            width: '100%',
+            border: '1px solid #333'
+          }}>
+            <h3 style={{ 
+              color: '#ef4444', 
+              fontSize: 20, 
+              fontWeight: 600, 
+              marginBottom: 16 
+            }}>确认删除用户</h3>
+            <p style={{ 
+              color: '#a1a1aa', 
+              marginBottom: 16,
+              fontSize: 14
+            }}>
+              确定要删除用户 <strong style={{ color: '#fff' }}>{deleteConfirmUser.displayName}</strong> 吗？
+            </p>
+            <p style={{ 
+              color: '#f59e0b', 
+              marginBottom: 16,
+              fontSize: 12
+            }}>
+              ⚠️ 此操作将永久删除该用户的所有数据，包括：
+              <br />• 用户基本信息
+              <br />• 所有客户数据 ({userStats.clientsCount} 个)
+              <br />• 所有课程记录 ({userStats.lessonRecordsCount} 个)
+              <br />• 所有套餐信息 ({userStats.packagesCount} 个)
+              <br />• 所有排课数据 ({userStats.schedulesCount} 个)
+              <br />• 其他相关数据
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: 12,
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setDeleteConfirmUser(null)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 6,
+                  background: '#23232a',
+                  color: '#a1a1aa',
+                  border: '1px solid #333',
+                  fontSize: 14,
+                  cursor: 'pointer'
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={() => handleDeleteUser(deleteConfirmUser)}
+                disabled={deletingUserId === deleteConfirmUser.uid}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 6,
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  fontSize: 14,
+                  cursor: deletingUserId === deleteConfirmUser.uid ? 'not-allowed' : 'pointer',
+                  opacity: deletingUserId === deleteConfirmUser.uid ? 0.6 : 1
+                }}
+              >
+                {deletingUserId === deleteConfirmUser.uid ? '删除中...' : '确认删除'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

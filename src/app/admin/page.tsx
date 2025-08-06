@@ -336,123 +336,124 @@ export default function AdminPage() {
             {searchTerm ? "没有找到匹配的用户" : "暂无注册用户"}
           </p>
         </div>
-      ) : (
-        filteredAndSortedUsers.map((userData, index) => (
-          <div 
-            key={userData.uid} 
-            style={{
-              ...cardStyle,
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-                          <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "8px 0"
-              }}>
-                {/* 可点击的用户信息区域 */}
-                <div 
-                  onClick={() => router.push(`/admin/${userData.uid}`)}
-                  style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: 12, 
-                    flex: 1,
-                    cursor: "pointer"
-                  }}
-                >
-                  {/* 用户头像 */}
-                  <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    background: userData.avatar ? "transparent" : "#60a5fa",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: "#18181b",
-                    flexShrink: 0
-                  }}>
-                    {userData.avatar ? (
-                      <img
-                        src={userData.avatar}
-                        alt="用户头像"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "50%",
-                          objectFit: "cover"
-                        }}
-                      />
-                    ) : (
-                      userData.displayName?.charAt(0).toUpperCase() || "U"
-                    )}
-                  </div>
+              ) : (
+          filteredAndSortedUsers.map((userData, index) => (
+           <div 
+             key={userData.uid} 
+             style={{
+               ...cardStyle,
+               cursor: "pointer",
+               transition: "all 0.2s ease"
+             }}
+             onMouseEnter={(e) => {
+               e.currentTarget.style.transform = "translateY(-2px)";
+               e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.3)";
+             }}
+             onMouseLeave={(e) => {
+               e.currentTarget.style.transform = "translateY(0)";
+               e.currentTarget.style.boxShadow = "none";
+             }}
+           >
+             <div style={{
+               display: "flex",
+               alignItems: "center",
+               gap: 12,
+               padding: "8px 0"
+             }}>
+               {/* 可点击的用户信息区域 */}
+               <Link 
+                 href={`/admin/${userData.uid}`}
+                 style={{ 
+                   display: "flex", 
+                   alignItems: "center", 
+                   gap: 12, 
+                   flex: 1,
+                   textDecoration: "none",
+                   color: "inherit"
+                 }}
+               >
+                 {/* 用户头像 */}
+                 <div style={{
+                   width: 40,
+                   height: 40,
+                   borderRadius: "50%",
+                   background: userData.avatar ? "transparent" : "#60a5fa",
+                   display: "flex",
+                   alignItems: "center",
+                   justifyContent: "center",
+                   fontSize: 16,
+                   fontWeight: 600,
+                   color: "#18181b",
+                   flexShrink: 0
+                 }}>
+                   {userData.avatar ? (
+                     <img
+                       src={userData.avatar}
+                       alt="用户头像"
+                       style={{
+                         width: "100%",
+                         height: "100%",
+                         borderRadius: "50%",
+                         objectFit: "cover"
+                       }}
+                     />
+                   ) : (
+                     userData.displayName?.charAt(0).toUpperCase() || "U"
+                   )}
+                 </div>
 
-                  {/* 用户信息 */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      display: "flex",
-                      flexDirection: isMobile ? "column" : "row",
-                      gap: isMobile ? 2 : 8,
-                      alignItems: isMobile ? "flex-start" : "center"
-                    }}>
-                      <h3 style={{
-                        fontSize: 16,
-                        fontWeight: 600,
-                        color: "#fff",
-                        margin: 0
-                      }}>
-                        {userData.displayName}
-                      </h3>
-                      <span style={{
-                        fontSize: 14,
-                        color: "#a1a1aa"
-                      }}>
-                        {userData.email}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                 {/* 用户信息 */}
+                 <div style={{ flex: 1, minWidth: 0 }}>
+                   <div style={{
+                     display: "flex",
+                     flexDirection: isMobile ? "column" : "row",
+                     gap: isMobile ? 2 : 8,
+                     alignItems: isMobile ? "flex-start" : "center"
+                   }}>
+                     <h3 style={{
+                       fontSize: 16,
+                       fontWeight: 600,
+                       color: "#fff",
+                       margin: 0
+                     }}>
+                       {userData.displayName}
+                     </h3>
+                     <span style={{
+                       fontSize: 14,
+                       color: "#a1a1aa"
+                     }}>
+                       {userData.email}
+                     </span>
+                   </div>
+                 </div>
+               </Link>
 
-                {/* 删除按钮 - 独立于 Link 之外 */}
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setDeleteConfirmUser(userData);
-                  }}
-                  disabled={deletingUserId === userData.uid}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: 4,
-                    background: "#ef4444",
-                    color: "#fff",
-                    border: "none",
-                    fontSize: 12,
-                    cursor: deletingUserId === userData.uid ? "not-allowed" : "pointer",
-                    opacity: deletingUserId === userData.uid ? 0.6 : 1,
-                    flexShrink: 0
-                  }}
-                >
-                  {deletingUserId === userData.uid ? "删除中..." : "删除"}
-                </button>
-              </div>
-         </div>
-        ))
-      )}
+               {/* 删除按钮 - 独立于 Link 之外 */}
+               <button
+                 onClick={(e) => {
+                   e.preventDefault();
+                   e.stopPropagation();
+                   setDeleteConfirmUser(userData);
+                 }}
+                 disabled={deletingUserId === userData.uid}
+                 style={{
+                   padding: "4px 8px",
+                   borderRadius: 4,
+                   background: "#ef4444",
+                   color: "#fff",
+                   border: "none",
+                   fontSize: 12,
+                   cursor: deletingUserId === userData.uid ? "not-allowed" : "pointer",
+                   opacity: deletingUserId === userData.uid ? 0.6 : 1,
+                   flexShrink: 0
+                 }}
+               >
+                 {deletingUserId === userData.uid ? "删除中..." : "删除"}
+               </button>
+             </div>
+          </div>
+          ))
+        )}
 
       {/* 统计信息 */}
       <div style={cardStyle}>
