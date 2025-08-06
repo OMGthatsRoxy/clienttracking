@@ -7,6 +7,7 @@ import { collection, getDocs, doc, getDoc, deleteDoc, writeBatch, query, where }
 import { db } from "@/lib/firebase";
 import type { Coach } from "@/types/coach";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface UserData {
   uid: string;
@@ -336,8 +337,24 @@ export default function AdminPage() {
           </p>
         </div>
       ) : (
-        filteredAndSortedUsers.map((userData, index) => (
-          <div key={userData.uid} style={cardStyle}>
+                 filteredAndSortedUsers.map((userData, index) => (
+           <div 
+             key={userData.uid} 
+             style={{
+               ...cardStyle,
+               cursor: "pointer",
+               transition: "all 0.2s ease"
+             }}
+             onMouseEnter={(e) => {
+               e.currentTarget.style.transform = "translateY(-2px)";
+               e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.3)";
+             }}
+             onMouseLeave={(e) => {
+               e.currentTarget.style.transform = "translateY(0)";
+               e.currentTarget.style.boxShadow = "none";
+             }}
+           >
+             <Link href={`/admin/${userData.uid}`} style={{ textDecoration: "none" }}>
             <div style={{
               display: "flex",
               flexDirection: isMobile ? "column" : "row",
@@ -476,14 +493,18 @@ export default function AdminPage() {
                    </span>
                  </div>
 
-                 {/* 操作按钮 */}
+                                  {/* 操作按钮 */}
                  <div style={{
                    display: "flex",
                    gap: 8,
                    marginTop: 12
                  }}>
                    <button
-                     onClick={() => setDeleteConfirmUser(userData)}
+                     onClick={(e) => {
+                       e.preventDefault();
+                       e.stopPropagation();
+                       setDeleteConfirmUser(userData);
+                     }}
                      disabled={deletingUserId === userData.uid}
                      style={{
                        padding: "6px 12px",
@@ -499,9 +520,10 @@ export default function AdminPage() {
                      {deletingUserId === userData.uid ? "删除中..." : "删除用户"}
                    </button>
                  </div>
-              </div>
-            </div>
-          </div>
+               </div>
+             </div>
+           </div>
+           </Link>
         ))
       )}
 
