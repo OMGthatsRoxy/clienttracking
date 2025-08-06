@@ -75,27 +75,50 @@ const Icon = ({ name, isActive }: { name: string; isActive: boolean }) => {
 
 export default function Navigation() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(0);
 
   useEffect(() => {
-    // 检测是否为移动设备
-    const checkMobile = () => {
+    // 检测是否为移动设备和屏幕宽度
+    const checkMobileAndWidth = () => {
       const userAgent = navigator.userAgent.toLowerCase();
       const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
       setIsMobile(isMobileDevice);
+      setScreenWidth(window.innerWidth);
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    checkMobileAndWidth();
+    window.addEventListener('resize', checkMobileAndWidth);
 
     return () => {
-      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', checkMobileAndWidth);
     };
   }, []);
 
   if (!user) return null;
+
+  // 根据语言和屏幕宽度计算字体大小
+  const getFontSize = () => {
+    if (language === 'zh') {
+      // 中文使用原来的字体大小
+      return isMobile ? 14 : 12;
+    } else {
+      // 英语和马来文根据屏幕宽度动态调整
+      if (screenWidth < 480) {
+        return 10; // 超小屏幕
+      } else if (screenWidth < 640) {
+        return 11; // 小屏幕
+      } else if (screenWidth < 768) {
+        return 12; // 中等屏幕
+      } else if (screenWidth < 1024) {
+        return 13; // 大屏幕
+      } else {
+        return 14; // 超大屏幕
+      }
+    }
+  };
 
   const navItems = [
     { href: "/", label: t('home'), icon: "home" },
@@ -150,30 +173,40 @@ export default function Navigation() {
           justifyContent: "space-around",
           width: "100%",
           alignItems: "center",
-          height: "100%"
+          height: "100%",
+          flexWrap: "nowrap", // 确保不换行
+          overflow: "hidden" // 防止溢出
         }}>
           {mobileNavItems.map((item) => (
-            <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
+            <Link key={item.href} href={item.href} style={{ textDecoration: "none", flex: "1", minWidth: 0 }}>
               <button style={{
                 background: "transparent",
                 border: "none",
                 color: isActive(item.href) ? "#60a5fa" : "#a1a1aa",
                 cursor: "pointer",
-                padding: isMobile ? "10px 14px" : "6px 10px", // 桌面端减少按钮内边距
+                padding: isMobile ? "10px 8px" : "6px 6px", // 减少内边距以适应更多文字
                 borderRadius: 8,
-                fontSize: isMobile ? 14 : 12, // 桌面端减小字体大小
+                fontSize: getFontSize(), // 使用动态字体大小
                 fontWeight: isActive(item.href) ? 600 : 400,
                 transition: "all 0.2s ease",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: isMobile ? 4 : 2, // 桌面端减少图标和文字间距
-                minWidth: isMobile ? 60 : 50, // 桌面端减少最小宽度
+                width: "100%", // 占满容器宽度
                 height: "100%",
-                justifyContent: "center"
+                justifyContent: "center",
+                whiteSpace: "nowrap", // 防止文字换行
+                overflow: "hidden", // 隐藏溢出内容
+                textOverflow: "ellipsis" // 显示省略号
               }}>
                 <Icon name={item.icon} isActive={isActive(item.href)} />
-                <span>{item.label}</span>
+                <span style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%"
+                }}>{item.label}</span>
               </button>
             </Link>
           ))}

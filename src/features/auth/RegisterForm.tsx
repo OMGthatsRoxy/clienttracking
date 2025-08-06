@@ -45,75 +45,29 @@ export default function RegisterForm() {
       <div style={{ marginBottom: 12 }}>
         <label style={{
           display: "block",
-          fontSize: "clamp(11px, 2.2vw, 12px)",
+          fontSize: "clamp(12px, 2.5vw, 13px)",
           color: "#a1a1aa",
-          marginBottom: 6
+          marginBottom: 4
         }}>
           {t('selectLanguage')}
         </label>
-        <div style={{
-          display: "flex",
-          gap: 8,
-          flexWrap: "wrap"
-        }}>
-          <button
-            type="button"
-            onClick={() => handleLanguageChange('zh')}
-            style={{
-              flex: "1",
-              minWidth: "60px",
-              padding: "6px 8px",
-              borderRadius: 6,
-              border: selectedLanguage === 'zh' ? "2px solid #60a5fa" : "1px solid #333",
-              background: selectedLanguage === 'zh' ? "#60a5fa" : "#23232a",
-              color: selectedLanguage === 'zh' ? "#18181b" : "#fff",
-              fontSize: "clamp(10px, 2vw, 12px)",
-              fontWeight: selectedLanguage === 'zh' ? 600 : 400,
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-          >
-            中文
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLanguageChange('en')}
-            style={{
-              flex: "1",
-              minWidth: "60px",
-              padding: "6px 8px",
-              borderRadius: 6,
-              border: selectedLanguage === 'en' ? "2px solid #60a5fa" : "1px solid #333",
-              background: selectedLanguage === 'en' ? "#60a5fa" : "#23232a",
-              color: selectedLanguage === 'en' ? "#18181b" : "#fff",
-              fontSize: "clamp(10px, 2vw, 12px)",
-              fontWeight: selectedLanguage === 'en' ? 600 : 400,
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-          >
-            English
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLanguageChange('ms')}
-            style={{
-              flex: "1",
-              minWidth: "60px",
-              padding: "6px 8px",
-              borderRadius: 6,
-              border: selectedLanguage === 'ms' ? "2px solid #60a5fa" : "1px solid #333",
-              background: selectedLanguage === 'ms' ? "#60a5fa" : "#23232a",
-              color: selectedLanguage === 'ms' ? "#18181b" : "#fff",
-              fontSize: "clamp(10px, 2vw, 12px)",
-              fontWeight: selectedLanguage === 'ms' ? 600 : 400,
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-          >
-            Bahasa
-          </button>
-        </div>
+        <select
+          value={selectedLanguage}
+          onChange={(e) => handleLanguageChange(e.target.value as Language)}
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: 6,
+            border: "1px solid #333",
+            background: "#23232a",
+            color: "#fff",
+            fontSize: "clamp(13px, 2.5vw, 14px)"
+          }}
+        >
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="ms">Bahasa Melayu</option>
+        </select>
       </div>
       <div style={{ marginBottom: 8 }}> {/* 减少底部间距 */}
         <input
