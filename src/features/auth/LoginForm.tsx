@@ -9,7 +9,7 @@ export default function LoginForm() {
   const { t, setLanguage } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>('zh');
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('en');
   const [error, setError] = useState("");
 
   // 当选择的语言改变时，立即更新界面语言
