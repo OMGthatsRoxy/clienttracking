@@ -8,6 +8,7 @@ import type { LessonRecord } from '@/types/lessonRecord';
 import { formatDate, getEndTime } from '@/lib/scheduleUtils';
 import LessonRecordModal from './LessonRecordModal';
 import NewLessonRecordModal from './NewLessonRecordModal';
+import Modal from './ui/Modal';
 
 interface ScheduleModalsProps {
   isModalOpen: boolean;
@@ -165,23 +166,18 @@ const BookingModal: React.FC<{
   const dateInfo = formatDate(selectedDate, language);
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 50,
-      padding: isMobile ? '8px' : '16px'
-    }}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isMobile={isMobile}
+      maxWidth="400px"
+      showCloseButton={false}
+    >
       <div className="form-card" style={{ 
-        maxWidth: isMobile ? '100%' : 400, 
-        margin: '0 auto',
-        padding: isMobile ? '16px' : '20px'
+        padding: 0,
+        background: 'transparent',
+        border: 'none',
+        boxShadow: 'none'
       }}>
         <h3 style={{ 
           color: "#fff", 
@@ -333,7 +329,7 @@ const BookingModal: React.FC<{
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -391,24 +387,19 @@ const ManagementModal: React.FC<{
 
   return (
     <>
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 50,
-        padding: isMobile ? '8px' : '16px'
-      }}>
-      <div className="form-card" style={{ 
-        maxWidth: isMobile ? '100%' : 400, 
-        margin: '0 auto',
-        padding: isMobile ? '16px' : '20px'
-      }}>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        isMobile={isMobile}
+        maxWidth="400px"
+        showCloseButton={false}
+      >
+        <div className="form-card" style={{ 
+          padding: 0,
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none'
+        }}>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
@@ -608,7 +599,7 @@ const ManagementModal: React.FC<{
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
     
     {/* 新建课程记录Modal */}
     <NewLessonRecordModal
@@ -664,23 +655,18 @@ const ConfirmModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 50,
-      padding: isMobile ? '8px' : '16px'
-    }}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isMobile={isMobile}
+      maxWidth="400px"
+      showCloseButton={false}
+    >
       <div className="form-card" style={{ 
-        maxWidth: isMobile ? '100%' : 400, 
-        margin: '0 auto',
-        padding: isMobile ? '16px' : '20px'
+        padding: 0,
+        background: 'transparent',
+        border: 'none',
+        boxShadow: 'none'
       }}>
         <h3 style={{ 
           color: "#fff", 
@@ -732,7 +718,7 @@ const ConfirmModal: React.FC<{
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };
 
