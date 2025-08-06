@@ -99,7 +99,9 @@ export interface Translations {
   packages: string;
   newPackage: string;
   packageName: string;
+  packageInfo: string;
   totalSessions: string;
+  courseCount: string;
   totalAmount: string;
   remainingSessions: string;
   startDate: string;
@@ -432,7 +434,7 @@ export interface Translations {
   action: string;
   selectCategory: string;
   selectAction: string;
-  weight: string;
+  exerciseWeight: string;
   group: string;
   addGroup: string;
   addAction: string;

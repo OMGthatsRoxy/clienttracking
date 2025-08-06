@@ -14,9 +14,7 @@ const initialState = {
   height: "",
   weight: "",
   goal: "",
-  notes: "",
-  // 配套相关字段
-  addPackage: false,
+  // 配套相关字段 - 现在是必填
   packageTotalSessions: "",
   packageTotalAmount: "",
   packageStartDate: "",
@@ -93,14 +91,13 @@ export default function ClientForm({ onSuccess }: { onSuccess?: (clientName: str
         height: Number(form.height),
         weight: Number(form.weight),
         goal: form.goal,
-        notes: form.notes,
         coachId: user.uid,
         createdAt: Timestamp.now().toDate().toISOString(),
         updatedAt: Timestamp.now().toDate().toISOString(),
       });
 
-      // 如果选择了添加配套，则创建配套
-      if (form.addPackage && form.packageTotalSessions) {
+      // 创建配套（现在是必填）
+      if (form.packageTotalSessions) {
         const now = new Date();
         const isExpired = form.packageValidUntil && new Date(form.packageValidUntil) < now;
         const totalSessions = Number(form.packageTotalSessions);
@@ -140,7 +137,7 @@ export default function ClientForm({ onSuccess }: { onSuccess?: (clientName: str
           updatedAt: getLocalISOString(), // 添加更新时间
         };
         
-        console.log('客户表单创建配套数据:', packageData);
+        // 创建配套数据
         
         await addDoc(collection(db, "packages"), packageData);
       }
@@ -235,50 +232,38 @@ export default function ClientForm({ onSuccess }: { onSuccess?: (clientName: str
       
       <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
         <label style={labelStyle}>{t('age')}</label>
-        <select 
+        <input 
           name="age" 
+          type="text" 
+          placeholder={t('selectAge')} 
           value={form.age} 
           onChange={handleChange} 
           style={inputStyle}
-        >
-          {ageOptions.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.value ? option.label : t('selectAge')}
-            </option>
-          ))}
-        </select>
+        />
       </div>
       
       <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
         <label style={labelStyle}>{t('height')}</label>
-        <select 
+        <input 
           name="height" 
+          type="text" 
+          placeholder={t('selectHeight')} 
           value={form.height} 
           onChange={handleChange} 
           style={inputStyle}
-        >
-          {heightOptions.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.value ? option.label : t(option.label)}
-            </option>
-          ))}
-        </select>
+        />
       </div>
       
       <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
         <label style={labelStyle}>{t('weight')}</label>
-        <select 
+        <input 
           name="weight" 
+          type="text" 
+          placeholder={t('selectWeight')} 
           value={form.weight} 
           onChange={handleChange} 
           style={inputStyle}
-        >
-          {weightOptions.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.value ? option.label : t(option.label)}
-            </option>
-          ))}
-        </select>
+        />
       </div>
       
       <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
@@ -296,117 +281,80 @@ export default function ClientForm({ onSuccess }: { onSuccess?: (clientName: str
           ))}
         </select>
       </div>
-      
-      <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-        <label style={labelStyle}>{t('notes')}</label>
-        <textarea 
-          name="notes" 
-          placeholder={t('notes')} 
-          value={form.notes} 
-          onChange={handleChange} 
-          style={{ 
-            ...inputStyle,
-            minHeight: 50, // 减少最小高度
-            resize: 'vertical'
-          }} 
-        />
-      </div>
 
-      {/* 配套部分 */}
+      {/* 配套部分 - 必填 */}
       <div style={{ 
         marginTop: 16, // 减少顶部间距
         marginBottom: 12, // 减少底部间距
         paddingTop: 12, // 减少内边距
         borderTop: '1px solid #333' 
       }}>
+        
         <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 6, // 减少间距
-            color: '#a1a1aa', 
-            fontSize: 'clamp(12px, 2.5vw, 14px)' // 响应式字体
-          }}>
-            <input
-              type="checkbox"
-              name="addPackage"
-              checked={form.addPackage}
-              onChange={(e) => setForm({ ...form, addPackage: e.target.checked })}
-              style={{ margin: 0, width: 14, height: 14 }} // 减小尺寸
-            />
-            {t('addPackage')} ({t('optional')})
-          </label>
+          <label style={labelStyle}>{t('courseCount')}</label>
+          <input 
+            name="packageTotalSessions" 
+            type="text" 
+            placeholder={t('courseCount')} 
+            value={form.packageTotalSessions} 
+            onChange={handleChange} 
+            required
+            style={inputStyle}
+          />
         </div>
-
-        {form.addPackage && (
-          <>
-            <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-              <label style={labelStyle}>{t('totalSessions')}</label>
-              <input 
-                name="packageTotalSessions" 
-                type="number" 
-                placeholder={t('totalSessions')} 
-                value={form.packageTotalSessions} 
-                onChange={handleChange} 
-                required={form.addPackage}
-                style={inputStyle}
-              />
-            </div>
-            
-            <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-              <label style={labelStyle}>{t('totalAmount')}</label>
-              <input 
-                name="packageTotalAmount" 
-                type="number" 
-                step="0.01"
-                placeholder={t('totalAmount')} 
-                value={form.packageTotalAmount} 
-                onChange={handleChange} 
-                required={form.addPackage}
-                style={inputStyle}
-              />
-            </div>
-            
-            <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-              <label style={labelStyle}>{t('startDate')}</label>
-              <input 
-                name="packageStartDate" 
-                type="date" 
-                placeholder={t('startDate')} 
-                value={form.packageStartDate} 
-                onChange={handleChange} 
-                style={inputStyle}
-              />
-            </div>
-            
-            <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-              <label style={labelStyle}>{t('expiryDate')}</label>
-              <input 
-                name="packageValidUntil" 
-                type="date" 
-                placeholder={t('expiryDate')} 
-                value={form.packageValidUntil} 
-                onChange={handleChange} 
-                style={inputStyle}
-              />
-            </div>
-            
-            <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
-              <label style={labelStyle}>{t('notes')}</label>
-              <textarea 
-                name="packageNotes" 
-                placeholder={t('notes')} 
-                value={form.packageNotes} 
-                onChange={handleChange} 
-                style={{ 
-                  ...inputStyle,
-                  minHeight: 50, // 减少最小高度
-                  resize: 'vertical'
-                }} 
-              />
-            </div>
-          </>
-        )}
+        
+        <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
+          <label style={labelStyle}>{t('totalAmount')}</label>
+          <input 
+            name="packageTotalAmount" 
+            type="text" 
+            placeholder={t('totalAmount')} 
+            value={form.packageTotalAmount} 
+            onChange={handleChange} 
+            required
+            style={inputStyle}
+          />
+        </div>
+        
+        <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
+          <label style={labelStyle}>{t('startDate')}</label>
+          <input 
+            name="packageStartDate" 
+            type="date" 
+            placeholder={t('startDate')} 
+            value={form.packageStartDate} 
+            onChange={handleChange} 
+            required
+            style={inputStyle}
+          />
+        </div>
+        
+        <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
+          <label style={labelStyle}>{t('expiryDate')}</label>
+          <input 
+            name="packageValidUntil" 
+            type="date" 
+            placeholder={t('expiryDate')} 
+            value={form.packageValidUntil} 
+            onChange={handleChange} 
+            style={inputStyle}
+          />
+        </div>
+        
+        <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
+          <label style={labelStyle}>{t('notes')}</label>
+          <textarea 
+            name="packageNotes" 
+            placeholder={t('notes')} 
+            value={form.packageNotes} 
+            onChange={handleChange} 
+            style={{ 
+              ...inputStyle,
+              minHeight: 50, // 减少最小高度
+              resize: 'vertical'
+            }} 
+          />
+        </div>
       </div>
 
       <button 

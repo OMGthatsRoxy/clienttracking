@@ -4,7 +4,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useLanguage } from "@/features/language/LanguageProvider";
 import { useAuth } from "@/features/auth/AuthProvider";
-import { appStyles } from "@/lib/styles";
+import { commonStyles } from "@/lib/styles";
 
 const initialState = {
   name: "",
@@ -167,45 +167,45 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
     <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
       <h2 style={{ color: '#fff', fontSize: 24, fontWeight: 600, margin: '0 0 24px 0' }}>{t('addProspect')}</h2>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('prospectName')} *</label>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('prospectName')} *</label>
         <input 
           name="name" 
           placeholder={t('enterProspectName')} 
           value={form.name} 
           onChange={handleChange} 
           required 
-          style={appStyles.formInput}
+          style={commonStyles.input}
         />
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('phone')} *</label>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('phone')} *</label>
         <input 
           name="phone" 
           placeholder={t('enterPhone')} 
           value={form.phone} 
           onChange={handleChange} 
           required 
-          style={appStyles.formInput}
+          style={commonStyles.input}
         />
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('email')} *</label>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('email')} *</label>
         <input 
           name="email" 
           placeholder={t('enterEmail')} 
           value={form.email} 
           onChange={handleChange} 
           required 
-          style={appStyles.formInput}
+          style={commonStyles.input}
         />
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('gender')}</label>
-        <select name="gender" value={form.gender} onChange={handleChange} style={appStyles.formInput}>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('gender')}</label>
+        <select name="gender" value={form.gender} onChange={handleChange} style={commonStyles.input}>
           {genderOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.value ? t(option.label) : t(option.label)}
@@ -214,9 +214,9 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         </select>
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('age')}</label>
-        <select name="age" value={form.age} onChange={handleChange} style={appStyles.formInput}>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('age')}</label>
+        <select name="age" value={form.age} onChange={handleChange} style={commonStyles.input}>
           {ageOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.value ? option.label : t(option.label)}
@@ -225,9 +225,9 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         </select>
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('height')}</label>
-        <select name="height" value={form.height} onChange={handleChange} style={appStyles.formInput}>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('height')}</label>
+        <select name="height" value={form.height} onChange={handleChange} style={commonStyles.input}>
           {heightOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.value ? option.label : t(option.label)}
@@ -236,9 +236,9 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         </select>
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('weight')}</label>
-        <select name="weight" value={form.weight} onChange={handleChange} style={appStyles.formInput}>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('weight')}</label>
+        <select name="weight" value={form.weight} onChange={handleChange} style={commonStyles.input}>
           {weightOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.value ? option.label : t(option.label)}
@@ -247,9 +247,9 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         </select>
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('goal')}</label>
-        <select name="goal" value={form.goal} onChange={handleChange} style={appStyles.formInput}>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('goal')}</label>
+        <select name="goal" value={form.goal} onChange={handleChange} style={commonStyles.input}>
           {goalOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.value ? t(option.label) : t(option.label)}
@@ -258,9 +258,9 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         </select>
       </div>
 
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('source')}</label>
-        <select name="source" value={form.source} onChange={handleChange} style={appStyles.formInput}>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('source')}</label>
+        <select name="source" value={form.source} onChange={handleChange} style={commonStyles.input}>
           {sourceOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.value ? t(option.label) : t(option.label)}
@@ -269,15 +269,15 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         </select>
       </div>
       
-      <div style={appStyles.formGroup}>
-        <label style={appStyles.formLabel}>{t('notes')}</label>
+      <div style={{ marginBottom: 16 }}>
+        <label style={commonStyles.label}>{t('notes')}</label>
         <textarea 
           name="notes" 
           placeholder={t('enterNotes')} 
           value={form.notes} 
           onChange={handleChange} 
           style={{ 
-            ...appStyles.formInput,
+            ...commonStyles.input,
             minHeight: 60,
             resize: 'vertical'
           }} 
@@ -289,8 +289,8 @@ export default function ProspectForm({ onSuccess }: { onSuccess?: () => void }) 
         disabled={loading}
         style={{
           width: '100%',
-          ...appStyles.primaryButton,
-          background: loading ? '#6b7280' : appStyles.primaryButton.background,
+          ...commonStyles.button,
+          background: loading ? '#6b7280' : commonStyles.button.background,
           cursor: loading ? 'not-allowed' : 'pointer'
         }}
       >

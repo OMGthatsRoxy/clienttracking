@@ -22,7 +22,6 @@ import {
   getStatusColor
 } from "@/lib/scheduleUtils";
 import { BookingModal, ManagementModal, ConfirmModal } from "@/components/ScheduleModals";
-// import { useSearchParams } from "next/navigation";
 
 // 自定义Hook：移动设备检测
 const useMobileDetection = () => {
@@ -175,7 +174,7 @@ export default function SchedulePage() {
     //   console.log('设置视图模式为:', viewModeParam);
     //   return viewModeParam;
     // }
-    console.log('使用默认视图模式: threeDay');
+    // 使用默认视图模式: threeDay
     return 'threeDay';
   };
 

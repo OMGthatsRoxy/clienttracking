@@ -2,7 +2,6 @@
 
 import LoginForm from "@/features/auth/LoginForm";
 import RegisterForm from "@/features/auth/RegisterForm";
-import LogoutButton from "@/features/auth/LogoutButton";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useLanguage } from "@/features/language/LanguageProvider";
 import { useState, useEffect } from "react";
@@ -45,7 +44,7 @@ export default function Home() {
     
     // 监听滚动事件，用于调试
     const handleScroll = () => {
-      console.log('Scroll position:', window.scrollY);
+      // 滚动位置记录
     };
     
     fetchCoachInfo();

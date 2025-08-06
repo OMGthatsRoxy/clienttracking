@@ -3,7 +3,6 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { useLanguage } from "@/features/language/LanguageProvider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import LogoutButton from "@/features/auth/LogoutButton";
 import { useEffect, useState } from "react";
 
 // 图标组件

@@ -14,7 +14,6 @@ import type { Coach } from "@/types/coach";
 import ImageUpload from "@/features/upload/ImageUpload";
 import Link from "next/link";
 import LogoutButton from "@/features/auth/LogoutButton";
-// import { useSearchParams } from "next/navigation";
 
 // 获取今日日期（使用本地时区）
 const getTodayDate = () => {

@@ -11,8 +11,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 生产环境优化
-  output: 'standalone',
+  // 生产环境优化 - 移除standalone以避免路由问题
+  // output: 'standalone',
   // 图片优化
   images: {
     domains: ['firebasestorage.googleapis.com'],
