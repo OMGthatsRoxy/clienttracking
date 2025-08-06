@@ -354,69 +354,77 @@ export default function AdminPage() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            <Link href={`/admin/${userData.uid}`} style={{ textDecoration: "none" }}>
-              <div style={{
+                          <div style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
                 padding: "8px 0"
               }}>
-                {/* 用户头像 */}
-                <div style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  background: userData.avatar ? "transparent" : "#60a5fa",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: "#18181b",
-                  flexShrink: 0
+                {/* 可点击的用户信息区域 */}
+                <Link href={`/admin/${userData.uid}`} style={{ 
+                  textDecoration: "none", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 12, 
+                  flex: 1 
                 }}>
-                  {userData.avatar ? (
-                    <img
-                      src={userData.avatar}
-                      alt="用户头像"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "50%",
-                        objectFit: "cover"
-                      }}
-                    />
-                  ) : (
-                    userData.displayName?.charAt(0).toUpperCase() || "U"
-                  )}
-                </div>
-
-                {/* 用户信息 */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* 用户头像 */}
                   <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: userData.avatar ? "transparent" : "#60a5fa",
                     display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
-                    gap: isMobile ? 2 : 8,
-                    alignItems: isMobile ? "flex-start" : "center"
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "#18181b",
+                    flexShrink: 0
                   }}>
-                    <h3 style={{
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: "#fff",
-                      margin: 0
-                    }}>
-                      {userData.displayName}
-                    </h3>
-                    <span style={{
-                      fontSize: 14,
-                      color: "#a1a1aa"
-                    }}>
-                      {userData.email}
-                    </span>
+                    {userData.avatar ? (
+                      <img
+                        src={userData.avatar}
+                        alt="用户头像"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover"
+                        }}
+                      />
+                    ) : (
+                      userData.displayName?.charAt(0).toUpperCase() || "U"
+                    )}
                   </div>
-                </div>
 
-                {/* 删除按钮 */}
+                  {/* 用户信息 */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      display: "flex",
+                      flexDirection: isMobile ? "column" : "row",
+                      gap: isMobile ? 2 : 8,
+                      alignItems: isMobile ? "flex-start" : "center"
+                    }}>
+                      <h3 style={{
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: "#fff",
+                        margin: 0
+                      }}>
+                        {userData.displayName}
+                      </h3>
+                      <span style={{
+                        fontSize: 14,
+                        color: "#a1a1aa"
+                      }}>
+                        {userData.email}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* 删除按钮 - 独立于 Link 之外 */}
                 <button
                   onClick={(e) => {
                     e.preventDefault();
@@ -439,7 +447,6 @@ export default function AdminPage() {
                   {deletingUserId === userData.uid ? "删除中..." : "删除"}
                 </button>
               </div>
-           </Link>
          </div>
         ))
       )}
