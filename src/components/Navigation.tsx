@@ -105,12 +105,17 @@ export default function Navigation() {
     { href: "/prospects", label: t('prospects'), icon: "prospects" },
   ];
 
+  // 检查是否为管理员
+  const isAdmin = user.email === "admin@example.com" || user.email?.includes("admin");
+
   const mobileNavItems = [
     { href: "/", label: t('home'), icon: "home" },
     { href: "/clients", label: t('clients'), icon: "clients" },
     { href: "/schedule", label: t('schedule'), icon: "schedule" },
     { href: "/prospects", label: t('prospects'), icon: "prospects" },
     { href: "/profile", label: t('profile'), icon: "profile" },
+    // 管理员专用入口
+    ...(isAdmin ? [{ href: "/admin", label: "管理", icon: "settings" }] : []),
   ];
 
   const settingsItems = [
