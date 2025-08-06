@@ -361,13 +361,16 @@ export default function AdminPage() {
                 padding: "8px 0"
               }}>
                 {/* 可点击的用户信息区域 */}
-                <Link href={`/admin/${userData.uid}`} style={{ 
-                  textDecoration: "none", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: 12, 
-                  flex: 1 
-                }}>
+                <div 
+                  onClick={() => router.push(`/admin/${userData.uid}`)}
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: 12, 
+                    flex: 1,
+                    cursor: "pointer"
+                  }}
+                >
                   {/* 用户头像 */}
                   <div style={{
                     width: 40,
@@ -422,7 +425,7 @@ export default function AdminPage() {
                       </span>
                     </div>
                   </div>
-                </Link>
+                </div>
 
                 {/* 删除按钮 - 独立于 Link 之外 */}
                 <button
