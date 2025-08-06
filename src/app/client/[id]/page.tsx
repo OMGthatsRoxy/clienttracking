@@ -421,46 +421,46 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
             </>
           ) : (
             // 显示模式
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('clientName')}</p>
-                <p style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>{client.name}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 6 : 8 }}>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('clientName')}</p>
+                <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, margin: 0 }}>{client.name}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('phone')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.phone}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('phone')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.phone}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('email')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.email}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('email')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.email}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('gender')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.gender ? t(client.gender as keyof typeof t) : '-'}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('gender')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.gender ? t(client.gender as keyof typeof t) : '-'}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('age')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.age || '-'}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('age')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.age || '-'}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('height')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.height ? `${client.height} cm` : '-'}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('height')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.height ? `${client.height} cm` : '-'}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('weight')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.weight ? `${client.weight} kg` : '-'}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('weight')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.weight ? `${client.weight} kg` : '-'}</p>
               </div>
-              <div style={{ padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-                <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('goal')}</p>
-                <p style={{ color: "#fff", fontSize: 14 }}>{client.goal ? t(client.goal as keyof typeof t) : '-'}</p>
+              <div style={{ padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+                <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('goal')}</p>
+                <p style={{ color: "#fff", fontSize: 13, margin: 0 }}>{client.goal ? t(client.goal as keyof typeof t) : '-'}</p>
               </div>
             </div>
           )}
           
           {!isEditing && client.notes && (
-            <div style={{ marginTop: 16, padding: '12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
-              <p style={{ color: "#a1a1aa", marginBottom: 4, fontSize: 12 }}>{t('notes')}</p>
-              <p style={{ color: "#fff", fontSize: 14, lineHeight: 1.4 }}>{client.notes}</p>
+            <div style={{ marginTop: 12, padding: isMobile ? '8px 10px' : '10px 12px', background: '#23232a', borderRadius: 6, border: '1px solid #333' }}>
+              <p style={{ color: "#a1a1aa", marginBottom: 2, fontSize: 11, margin: 0 }}>{t('notes')}</p>
+              <p style={{ color: "#fff", fontSize: 13, lineHeight: 1.3, margin: 0 }}>{client.notes}</p>
             </div>
           )}
         </div>

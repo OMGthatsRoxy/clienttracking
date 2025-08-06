@@ -63,23 +63,24 @@ export default function PackageList({ clientId }: { clientId: string }) {
 
   const renderPackageItem = (pkg: Package) => (
     <li key={pkg.id} className="form-card" style={{ 
-      marginBottom: 12, 
+      marginBottom: 8, 
+      padding: '10px 12px',
       borderLeft: pkg.remainingSessions === 0 ? '4px solid #10b981' : pkg.isExpired ? '4px solid #f87171' : '4px solid #60a5fa' 
     }}>
-      <div style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 4 }}>{t('totalSessions')}：{pkg.totalSessions}</div>
-      <div style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 4 }}>{t('totalAmount')}：¥{pkg.totalAmount?.toFixed(2) || '0.00'}</div>
-      <div style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 4 }}>{t('remainingSessions')}：{pkg.remainingSessions}</div>
-      <div style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 4 }}>{t('startDate')}：{pkg.startDate}</div>
-      <div style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 4 }}>{t('expiryDate')}：{pkg.validUntil}</div>
+      <div style={{ color: '#a1a1aa', fontSize: 12, marginBottom: 2 }}>{t('totalSessions')}：{pkg.totalSessions}</div>
+      <div style={{ color: '#a1a1aa', fontSize: 12, marginBottom: 2 }}>{t('totalAmount')}：¥{pkg.totalAmount?.toFixed(2) || '0.00'}</div>
+      <div style={{ color: '#a1a1aa', fontSize: 12, marginBottom: 2 }}>{t('remainingSessions')}：{pkg.remainingSessions}</div>
+      <div style={{ color: '#a1a1aa', fontSize: 12, marginBottom: 2 }}>{t('startDate')}：{pkg.startDate}</div>
+      <div style={{ color: '#a1a1aa', fontSize: 12, marginBottom: 2 }}>{t('expiryDate')}：{pkg.validUntil}</div>
       <div style={{ 
         color: pkg.remainingSessions === 0 ? '#10b981' : pkg.isExpired ? '#f87171' : '#a1a1aa', 
-        fontSize: 14, 
-        marginBottom: 4,
+        fontSize: 12, 
+        marginBottom: 2,
         fontWeight: 600
       }}>
         {pkg.remainingSessions === 0 ? '已完成' : pkg.isExpired ? t('expired') : t('valid')}
       </div>
-      {pkg.notes && <div style={{ color: '#a1a1aa', fontSize: 13, marginBottom: 8 }}>{t('notes')}：{pkg.notes}</div>}
+      {pkg.notes && <div style={{ color: '#a1a1aa', fontSize: 11, marginBottom: 4 }}>{t('notes')}：{pkg.notes}</div>}
       
       <button
         onClick={() => handleDeletePackage(pkg.id!)}
@@ -89,11 +90,11 @@ export default function PackageList({ clientId }: { clientId: string }) {
           color: '#dc2626',
           border: 'none',
           padding: 0,
-          fontSize: 12,
+          fontSize: 11,
           cursor: 'pointer',
           opacity: deletingPackageId === pkg.id ? 0.5 : 1,
           textDecoration: 'underline',
-          marginTop: 8
+          marginTop: 4
         }}
       >
         {deletingPackageId === pkg.id ? t('loading') : t('delete')}
@@ -104,8 +105,8 @@ export default function PackageList({ clientId }: { clientId: string }) {
   return (
     <div style={{ marginTop: 16 }}>
       {/* 有效配套 */}
-      <div style={{ marginBottom: 24 }}>
-        <h3 style={{ color: '#fff', fontSize: 18, marginBottom: 12 }}>
+      <div style={{ marginBottom: 16 }}>
+        <h3 style={{ color: '#fff', fontSize: 16, marginBottom: 8 }}>
           有效配套 ({activePackages.length})
         </h3>
         {activePackages.length === 0 ? (
@@ -119,7 +120,7 @@ export default function PackageList({ clientId }: { clientId: string }) {
 
       {/* 已完成配套 */}
       <div>
-        <h3 style={{ color: '#fff', fontSize: 18, marginBottom: 12 }}>
+        <h3 style={{ color: '#fff', fontSize: 16, marginBottom: 8 }}>
           已完成配套 ({completedPackages.length})
         </h3>
         {completedPackages.length === 0 ? (
