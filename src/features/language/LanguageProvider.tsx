@@ -26,6 +26,8 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('language', lang);
+    // 触发重新渲染以确保所有组件都使用新语言
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: lang }));
   };
 
   const t = (key: keyof typeof translations.zh): string => {

@@ -2,11 +2,21 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useLanguage } from "@/features/language/LanguageProvider";
+import type { Language } from "@/types/language";
 
 export default function LoginForm() {
+  const { t, setLanguage } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('zh');
   const [error, setError] = useState("");
+
+  // 当选择的语言改变时，立即更新界面语言
+  const handleLanguageChange = (newLanguage: Language) => {
+    setSelectedLanguage(newLanguage);
+    setLanguage(newLanguage);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,11 +33,40 @@ export default function LoginForm() {
         fontSize: "clamp(16px, 3vw, 20px)", // 响应式字体
         marginBottom: 12, // 减少底部间距
         textAlign: "center"
-      }}>教练登录</h2>
+      }}>{t('login')}</h2>
+      
+      {/* 语言选择 */}
+      <div style={{ marginBottom: 12 }}>
+        <label style={{
+          display: "block",
+          fontSize: "clamp(12px, 2.5vw, 13px)",
+          color: "#a1a1aa",
+          marginBottom: 4
+        }}>
+          {t('selectLanguage')}
+        </label>
+        <select
+          value={selectedLanguage}
+          onChange={(e) => handleLanguageChange(e.target.value as Language)}
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: 6,
+            border: "1px solid #333",
+            background: "#23232a",
+            color: "#fff",
+            fontSize: "clamp(13px, 2.5vw, 14px)"
+          }}
+        >
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="ms">Bahasa Melayu</option>
+        </select>
+      </div>
       <div style={{ marginBottom: 8 }}> {/* 减少底部间距 */}
         <input
           type="email"
-          placeholder="邮箱"
+          placeholder={t('email')}
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
@@ -46,7 +85,7 @@ export default function LoginForm() {
       <div style={{ marginBottom: 12 }}> {/* 减少底部间距 */}
         <input
           type="password"
-          placeholder="密码"
+          placeholder={t('password')}
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
@@ -75,7 +114,7 @@ export default function LoginForm() {
           fontSize: "clamp(13px, 2.5vw, 14px)" // 响应式字体
         }}
       >
-        登录
+        {t('login')}
       </button>
       {error && (
         <p style={{ 
