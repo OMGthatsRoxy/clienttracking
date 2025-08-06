@@ -660,11 +660,75 @@ export default function ProfilePage() {
 
     setSettingsLoading(true);
     try {
+      // 重新认证用户
       const credential = EmailAuthProvider.credential(user.email!, deletePassword);
       await reauthenticateWithCredential(user, credential);
+      
+      // 删除用户的所有数据
+      const { writeBatch, doc, collection, query, where, getDocs } = await import("firebase/firestore");
+      const batch = writeBatch(db);
+      
+      // 删除教练基本信息
+      const coachRef = doc(db, "coaches", user.uid);
+      batch.delete(coachRef);
+      
+      // 删除该教练的所有客户
+      const clientsSnapshot = await getDocs(
+        query(collection(db, "clients"), where("coachId", "==", user.uid))
+      );
+      clientsSnapshot.docs.forEach((clientDoc) => {
+        batch.delete(clientDoc.ref);
+      });
+      
+      // 删除该教练的所有潜在客户
+      const prospectsSnapshot = await getDocs(
+        query(collection(db, "prospects"), where("coachId", "==", user.uid))
+      );
+      prospectsSnapshot.docs.forEach((prospectDoc) => {
+        batch.delete(prospectDoc.ref);
+      });
+      
+      // 删除该教练的所有课程记录
+      const lessonRecordsSnapshot = await getDocs(
+        query(collection(db, "lessonRecords"), where("coachId", "==", user.uid))
+      );
+      lessonRecordsSnapshot.docs.forEach((recordDoc) => {
+        batch.delete(recordDoc.ref);
+      });
+      
+      // 删除该教练的所有套餐
+      const packagesSnapshot = await getDocs(
+        query(collection(db, "packages"), where("coachId", "==", user.uid))
+      );
+      packagesSnapshot.docs.forEach((packageDoc) => {
+        batch.delete(packageDoc.ref);
+      });
+      
+      // 删除该教练的所有排课
+      const schedulesSnapshot = await getDocs(
+        query(collection(db, "schedules"), where("coachId", "==", user.uid))
+      );
+      schedulesSnapshot.docs.forEach((scheduleDoc) => {
+        batch.delete(scheduleDoc.ref);
+      });
+      
+      // 删除该教练的所有自定义动作
+      const exercisesSnapshot = await getDocs(
+        query(collection(db, "exercises"), where("coachId", "==", user.uid))
+      );
+      exercisesSnapshot.docs.forEach((exerciseDoc) => {
+        batch.delete(exerciseDoc.ref);
+      });
+      
+      // 执行批量删除
+      await batch.commit();
+      
+      // 删除 Firebase Auth 用户账户
       await deleteUser(user);
+      
       setShowDeleteSuccess(true);
     } catch (error: any) {
+      console.error("删除账户失败:", error);
       setSettingsMessage("删除账户失败: " + (error.message || "未知错误"));
       setSettingsMessageType("error");
     } finally {

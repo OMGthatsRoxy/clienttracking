@@ -3,7 +3,7 @@
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useLanguage } from "@/features/language/LanguageProvider";
 import { useState, useEffect } from "react";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, deleteDoc, writeBatch, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Coach } from "@/types/coach";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,8 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"email" | "displayName" | "createdAt">("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<UserData | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     // 检查是否为管理员（这里简单检查邮箱，实际项目中应该有更严格的权限控制）
@@ -102,6 +104,76 @@ export default function AdminPage() {
       window.removeEventListener('resize', checkMobile);
     };
   }, [user, router]);
+
+  // 删除用户及其所有数据
+  const handleDeleteUser = async (userData: UserData) => {
+    if (!userData.uid) return;
+    
+    try {
+      setDeletingUserId(userData.uid);
+      
+      const batch = writeBatch(db);
+      
+      // 删除教练基本信息
+      const coachRef = doc(db, "coaches", userData.uid);
+      batch.delete(coachRef);
+      
+      // 删除该教练的所有客户
+      const clientsSnapshot = await getDocs(
+        query(collection(db, "clients"), where("coachId", "==", userData.uid))
+      );
+      clientsSnapshot.docs.forEach((clientDoc) => {
+        batch.delete(clientDoc.ref);
+      });
+      
+      // 删除该教练的所有潜在客户
+      const prospectsSnapshot = await getDocs(
+        query(collection(db, "prospects"), where("coachId", "==", userData.uid))
+      );
+      prospectsSnapshot.docs.forEach((prospectDoc) => {
+        batch.delete(prospectDoc.ref);
+      });
+      
+      // 删除该教练的所有课程记录
+      const lessonRecordsSnapshot = await getDocs(
+        query(collection(db, "lessonRecords"), where("coachId", "==", userData.uid))
+      );
+      lessonRecordsSnapshot.docs.forEach((recordDoc) => {
+        batch.delete(recordDoc.ref);
+      });
+      
+      // 删除该教练的所有套餐
+      const packagesSnapshot = await getDocs(
+        query(collection(db, "packages"), where("coachId", "==", userData.uid))
+      );
+      packagesSnapshot.docs.forEach((packageDoc) => {
+        batch.delete(packageDoc.ref);
+      });
+      
+      // 删除该教练的所有排课
+      const schedulesSnapshot = await getDocs(
+        query(collection(db, "schedules"), where("coachId", "==", userData.uid))
+      );
+      schedulesSnapshot.docs.forEach((scheduleDoc) => {
+        batch.delete(scheduleDoc.ref);
+      });
+      
+      // 执行批量删除
+      await batch.commit();
+      
+      // 从本地状态中移除用户
+      setUsers(users.filter(u => u.uid !== userData.uid));
+      setDeleteConfirmUser(null);
+      
+      alert(`用户 ${userData.displayName} 及其所有数据已成功删除`);
+      
+    } catch (error) {
+      console.error("删除用户失败:", error);
+      alert("删除用户失败，请重试");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
 
   // 过滤和排序用户
   const filteredAndSortedUsers = users
@@ -380,29 +452,53 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                {/* 状态信息 */}
-                <div style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                  marginTop: 8,
-                  fontSize: 12
-                }}>
-                  <span style={{
-                    padding: "2px 6px",
-                    borderRadius: 4,
-                    background: userData.isPublic ? "#10b981" : "#6b7280",
-                    color: "#fff"
-                  }}>
-                    {userData.isPublic ? "公开" : "私密"}
-                  </span>
-                  <span style={{ color: "#a1a1aa" }}>
-                    注册: {userData.createdAt}
-                  </span>
-                  <span style={{ color: "#a1a1aa" }}>
-                    最后登录: {userData.lastLoginAt}
-                  </span>
-                </div>
+                                 {/* 状态信息 */}
+                 <div style={{
+                   display: "flex",
+                   flexWrap: "wrap",
+                   gap: 8,
+                   marginTop: 8,
+                   fontSize: 12
+                 }}>
+                   <span style={{
+                     padding: "2px 6px",
+                     borderRadius: 4,
+                     background: userData.isPublic ? "#10b981" : "#6b7280",
+                     color: "#fff"
+                   }}>
+                     {userData.isPublic ? "公开" : "私密"}
+                   </span>
+                   <span style={{ color: "#a1a1aa" }}>
+                     注册: {userData.createdAt}
+                   </span>
+                   <span style={{ color: "#a1a1aa" }}>
+                     最后登录: {userData.lastLoginAt}
+                   </span>
+                 </div>
+
+                 {/* 操作按钮 */}
+                 <div style={{
+                   display: "flex",
+                   gap: 8,
+                   marginTop: 12
+                 }}>
+                   <button
+                     onClick={() => setDeleteConfirmUser(userData)}
+                     disabled={deletingUserId === userData.uid}
+                     style={{
+                       padding: "6px 12px",
+                       borderRadius: 6,
+                       background: "#ef4444",
+                       color: "#fff",
+                       border: "none",
+                       fontSize: 12,
+                       cursor: deletingUserId === userData.uid ? "not-allowed" : "pointer",
+                       opacity: deletingUserId === userData.uid ? 0.6 : 1
+                     }}
+                   >
+                     {deletingUserId === userData.uid ? "删除中..." : "删除用户"}
+                   </button>
+                 </div>
               </div>
             </div>
           </div>
@@ -441,8 +537,97 @@ export default function AdminPage() {
             </div>
             <div style={{ fontSize: 12, color: "#a1a1aa" }}>有认证</div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+                 </div>
+       </div>
+
+       {/* 删除确认弹窗 */}
+       {deleteConfirmUser && (
+         <div style={{
+           position: 'fixed',
+           top: 0,
+           left: 0,
+           right: 0,
+           bottom: 0,
+           background: 'rgba(0, 0, 0, 0.8)',
+           display: 'flex',
+           alignItems: 'center',
+           justifyContent: 'center',
+           zIndex: 1000,
+           padding: isMobile ? '8px' : '16px'
+         }}>
+           <div style={{
+             background: '#18181b',
+             borderRadius: 12,
+             padding: isMobile ? '16px' : '24px',
+             maxWidth: isMobile ? '100%' : 400,
+             width: '100%',
+             border: '1px solid #333'
+           }}>
+             <h3 style={{ 
+               color: '#ef4444', 
+               fontSize: 20, 
+               fontWeight: 600, 
+               marginBottom: 16 
+             }}>确认删除用户</h3>
+             <p style={{ 
+               color: '#a1a1aa', 
+               marginBottom: 16,
+               fontSize: 14
+             }}>
+               确定要删除用户 <strong style={{ color: '#fff' }}>{deleteConfirmUser.displayName}</strong> 吗？
+             </p>
+             <p style={{ 
+               color: '#f59e0b', 
+               marginBottom: 16,
+               fontSize: 12
+             }}>
+               ⚠️ 此操作将永久删除该用户的所有数据，包括：
+               <br />• 用户基本信息
+               <br />• 所有客户数据
+               <br />• 所有课程记录
+               <br />• 所有套餐信息
+               <br />• 所有排课数据
+               <br />• 其他相关数据
+             </p>
+             <div style={{
+               display: 'flex',
+               gap: 12,
+               justifyContent: 'flex-end'
+             }}>
+               <button
+                 onClick={() => setDeleteConfirmUser(null)}
+                 style={{
+                   padding: '8px 16px',
+                   borderRadius: 6,
+                   background: '#23232a',
+                   color: '#a1a1aa',
+                   border: '1px solid #333',
+                   fontSize: 14,
+                   cursor: 'pointer'
+                 }}
+               >
+                 取消
+               </button>
+               <button
+                 onClick={() => handleDeleteUser(deleteConfirmUser)}
+                 disabled={deletingUserId === deleteConfirmUser.uid}
+                 style={{
+                   padding: '8px 16px',
+                   borderRadius: 6,
+                   background: '#ef4444',
+                   color: '#fff',
+                   border: 'none',
+                   fontSize: 14,
+                   cursor: deletingUserId === deleteConfirmUser.uid ? 'not-allowed' : 'pointer',
+                   opacity: deletingUserId === deleteConfirmUser.uid ? 0.6 : 1
+                 }}
+               >
+                 {deletingUserId === deleteConfirmUser.uid ? '删除中...' : '确认删除'}
+               </button>
+             </div>
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ }
