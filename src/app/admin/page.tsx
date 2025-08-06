@@ -337,24 +337,24 @@ export default function AdminPage() {
           </p>
         </div>
       ) : (
-                 filteredAndSortedUsers.map((userData, index) => (
-           <div 
-             key={userData.uid} 
-             style={{
-               ...cardStyle,
-               cursor: "pointer",
-               transition: "all 0.2s ease"
-             }}
-             onMouseEnter={(e) => {
-               e.currentTarget.style.transform = "translateY(-2px)";
-               e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.3)";
-             }}
-             onMouseLeave={(e) => {
-               e.currentTarget.style.transform = "translateY(0)";
-               e.currentTarget.style.boxShadow = "none";
-             }}
-           >
-             <Link href={`/admin/${userData.uid}`} style={{ textDecoration: "none" }}>
+        filteredAndSortedUsers.map((userData, index) => (
+          <div 
+            key={userData.uid} 
+            style={{
+              ...cardStyle,
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            <Link href={`/admin/${userData.uid}`} style={{ textDecoration: "none" }}>
             <div style={{
               display: "flex",
               flexDirection: isMobile ? "column" : "row",
@@ -522,8 +522,8 @@ export default function AdminPage() {
                  </div>
                </div>
              </div>
-           </div>
            </Link>
+         </div>
         ))
       )}
 
