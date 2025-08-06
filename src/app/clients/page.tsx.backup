@@ -1,0 +1,295 @@
+"use client";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { useLanguage } from "@/features/language/LanguageProvider";
+import { useEffect, useState } from "react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { Client } from "@/types/client";
+import Link from "next/link";
+import ClientForm from "@/features/clients/ClientForm";
+import { getResponsiveStyles } from "@/lib/styles";
+
+
+export default function ClientsPage() {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showNewClientForm, setShowNewClientForm] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const clientsPerPage = 5;
+
+  useEffect(() => {
+    // 检测是否为移动设备
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  const styles = getResponsiveStyles(isMobile);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchClients = async () => {
+      setLoading(true);
+      const q = query(collection(db, "clients"), where("coachId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      setClients(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Client)));
+      setLoading(false);
+    };
+    fetchClients();
+  }, [user]);
+
+  if (!user) return <div style={{ color: '#a1a1aa' }}>{t('loading')}</div>;
+  if (loading) return <div style={{ color: '#a1a1aa' }}>{t('loading')}</div>;
+
+  return (
+    <>
+      <main className="page-content" style={styles.pageContainer}>
+        <div style={styles.contentContainer}>
+        {/* 标题区域 - 居中 */}
+        <div style={styles.titleSection}>
+          <h1 style={styles.mainTitle}>{t('clientList')}</h1>
+          
+          {/* 添加按钮 - 绝对定位在右侧 */}
+          <button 
+            onClick={() => setShowNewClientForm(true)}
+            style={{ 
+              position: "absolute",
+              right: 0,
+              ...styles.primaryButton
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#3b82f6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#60a5fa';
+            }}
+          >
+            +{t('client')}
+          </button>
+        </div>
+
+        <div style={{ 
+          flex: 1,
+          overflowY: "auto", // 仅在内容超出时显示垂直滚动
+          overflowX: "hidden" // 隐藏水平滚动
+        }}>
+          {clients.length === 0 ? (
+            <div style={{ 
+              color: '#a1a1aa', 
+              textAlign: 'center', 
+              padding: '24px', // 减少内边距
+              fontSize: "clamp(14px, 3vw, 16px)" // 响应式字体
+            }}>{t('noClients')}</div>
+          ) : (
+            <>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(2, 1fr)', // 固定为两列
+                gap: 8, // 减少间距
+                padding: 0 
+              }}>
+                {clients
+                  .slice((currentPage - 1) * clientsPerPage, currentPage * clientsPerPage)
+                  .map(client => (
+                <div key={client.id} className="form-card list-item" style={{ 
+                  marginBottom: 0,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  border: '1px solid #333',
+                  padding: '12px', // 减少内边距
+                  minHeight: '70px', // 减小最小高度
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  borderRadius: 8 // 减小圆角
+                }}
+                onClick={() => window.location.href = `/client/${client.id}`}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#60a5fa';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(96, 165, 250, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#333';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+                >
+                  <div style={{ 
+                    fontWeight: 600, 
+                    fontSize: "clamp(14px, 3vw, 16px)", // 响应式字体
+                    marginBottom: 6, // 减少底部间距
+                    color: '#fff' 
+                  }}>{client.name}</div>
+                  <div style={{ 
+                    color: '#a1a1aa', 
+                    fontSize: "clamp(11px, 2.5vw, 12px)" // 响应式字体
+                  }}>
+                    <span style={{ marginRight: 4 }}>📞</span>
+                    {client.phone}
+                  </div>
+                  {client.email && (
+                    <div style={{ 
+                      color: '#a1a1aa', 
+                      fontSize: "clamp(11px, 2.5vw, 12px)", // 响应式字体
+                      marginTop: 2 
+                    }}>
+                      <span style={{ marginRight: 4 }}>✉️</span>
+                      {client.email}
+                    </div>
+                  )}
+                </div>
+              ))}
+              </div>
+              
+              {/* 分页控件 */}
+              {clients.length > clientsPerPage && (
+                <div className="pagination" style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  gap: 8, // 减少间距
+                  marginTop: 16, // 减少顶部间距
+                  flexShrink: 0 // 防止压缩
+                }}>
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      background: currentPage === 1 ? '#23232a' : '#60a5fa',
+                      color: currentPage === 1 ? '#666' : '#18181b',
+                      border: 'none',
+                      borderRadius: 6,
+                      padding: '6px 12px', // 减少内边距
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      fontSize: "clamp(11px, 2.5vw, 14px)", // 响应式字体
+                      fontWeight: 600
+                    }}
+                  >
+                    {t('previous')}
+                  </button>
+                  
+                  <span style={{ 
+                    color: '#a1a1aa', 
+                    fontSize: "clamp(12px, 2.5vw, 14px)" // 响应式字体
+                  }}>
+                    {currentPage} / {Math.ceil(clients.length / clientsPerPage)}
+                  </span>
+                  
+                  <button
+                    onClick={() => setCurrentPage(Math.min(Math.ceil(clients.length / clientsPerPage), currentPage + 1))}
+                    disabled={currentPage === Math.ceil(clients.length / clientsPerPage)}
+                    style={{
+                      background: currentPage === Math.ceil(clients.length / clientsPerPage) ? '#23232a' : '#60a5fa',
+                      color: currentPage === Math.ceil(clients.length / clientsPerPage) ? '#666' : '#18181b',
+                      border: 'none',
+                      borderRadius: 6,
+                      padding: '6px 12px', // 减少内边距
+                      cursor: currentPage === Math.ceil(clients.length / clientsPerPage) ? 'not-allowed' : 'pointer',
+                      fontSize: "clamp(11px, 2.5vw, 14px)", // 响应式字体
+                      fontWeight: 600
+                    }}
+                  >
+                    {t('next')}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* 新增客户弹窗 */}
+        {showNewClientForm && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '12px', // 减少内边距
+              animation: 'fadeIn 0.2s ease-out'
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowNewClientForm(false);
+              }
+            }}
+          >
+            <div className="modal-content" style={{
+              background: '#18181b',
+              borderRadius: 8, // 减小圆角
+              padding: 16, // 减少内边距
+              maxWidth: 600,
+              width: '100%',
+              maxHeight: '85vh', // 减少最大高度
+              overflow: 'auto',
+              border: '1px solid #333',
+              position: 'relative',
+              animation: 'slideIn 0.3s ease-out'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 16 // 减少底部间距
+              }}>
+                <h2 style={{ 
+                  color: '#fff', 
+                  fontSize: "clamp(16px, 3vw, 20px)", // 响应式字体
+                  fontWeight: 600, 
+                  margin: 0 
+                }}>
+                  {t('newClient')}
+                </h2>
+                <button
+                  onClick={() => setShowNewClientForm(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#a1a1aa',
+                    fontSize: 20, // 减小字体
+                    cursor: 'pointer',
+                    padding: 0,
+                    width: 24, // 减小尺寸
+                    height: 24,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              <ClientForm 
+                onSuccess={() => {
+                  setShowNewClientForm(false);
+                  // 刷新客户列表
+                  window.location.reload();
+                }} 
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+    </>
+  );
+} 
