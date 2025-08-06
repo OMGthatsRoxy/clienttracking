@@ -355,173 +355,90 @@ export default function AdminPage() {
             }}
           >
             <Link href={`/admin/${userData.uid}`} style={{ textDecoration: "none" }}>
-            <div style={{
-              display: "flex",
-              flexDirection: isMobile ? "column" : "row",
-              gap: 12,
-              alignItems: isMobile ? "flex-start" : "center"
-            }}>
-              {/* 用户头像 */}
               <div style={{
-                width: 60,
-                height: 60,
-                borderRadius: "50%",
-                background: userData.avatar ? "transparent" : "#60a5fa",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                fontSize: 20,
-                fontWeight: 600,
-                color: "#18181b",
-                flexShrink: 0
+                gap: 12,
+                padding: "8px 0"
               }}>
-                {userData.avatar ? (
-                  <img
-                    src={userData.avatar}
-                    alt="用户头像"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: "50%",
-                      objectFit: "cover"
-                    }}
-                  />
-                ) : (
-                  userData.displayName?.charAt(0).toUpperCase() || "U"
-                )}
-              </div>
-
-              {/* 用户信息 */}
-              <div style={{ flex: 1, minWidth: 0 }}>
+                {/* 用户头像 */}
                 <div style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  background: userData.avatar ? "transparent" : "#60a5fa",
                   display: "flex",
-                  flexDirection: isMobile ? "column" : "row",
-                  gap: isMobile ? 4 : 12,
-                  alignItems: isMobile ? "flex-start" : "center",
-                  marginBottom: 8
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "#18181b",
+                  flexShrink: 0
                 }}>
-                  <h3 style={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                    color: "#fff",
-                    margin: 0
+                  {userData.avatar ? (
+                    <img
+                      src={userData.avatar}
+                      alt="用户头像"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        objectFit: "cover"
+                      }}
+                    />
+                  ) : (
+                    userData.displayName?.charAt(0).toUpperCase() || "U"
+                  )}
+                </div>
+
+                {/* 用户信息 */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    display: "flex",
+                    flexDirection: isMobile ? "column" : "row",
+                    gap: isMobile ? 2 : 8,
+                    alignItems: isMobile ? "flex-start" : "center"
                   }}>
-                    {userData.displayName}
-                  </h3>
-                  <span style={{
-                    fontSize: 14,
-                    color: "#a1a1aa"
-                  }}>
-                    {userData.email}
-                  </span>
-                  {userData.phone && (
+                    <h3 style={{
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: "#fff",
+                      margin: 0
+                    }}>
+                      {userData.displayName}
+                    </h3>
                     <span style={{
                       fontSize: 14,
                       color: "#a1a1aa"
                     }}>
-                      📞 {userData.phone}
+                      {userData.email}
                     </span>
-                  )}
+                  </div>
                 </div>
 
-                {/* 详细信息 */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))",
-                  gap: 8,
-                  fontSize: 14,
-                  color: "#a1a1aa"
-                }}>
-                  {userData.bio && (
-                    <div>
-                      <strong>简介:</strong> {userData.bio}
-                    </div>
-                  )}
-                  {userData.specialties && userData.specialties.length > 0 && (
-                    <div>
-                      <strong>专长:</strong> {userData.specialties.join(", ")}
-                    </div>
-                  )}
-                  {userData.experience && (
-                    <div>
-                      <strong>经验:</strong> {userData.experience} 年
-                    </div>
-                  )}
-                  {userData.location && (
-                    <div>
-                      <strong>位置:</strong> {userData.location}
-                    </div>
-                  )}
-                  {userData.education && (
-                    <div>
-                      <strong>教育:</strong> {userData.education}
-                    </div>
-                  )}
-                  {userData.certifications && userData.certifications.length > 0 && (
-                    <div>
-                      <strong>认证:</strong> {userData.certifications.join(", ")}
-                    </div>
-                  )}
-                  {userData.languages && userData.languages.length > 0 && (
-                    <div>
-                      <strong>语言:</strong> {userData.languages.join(", ")}
-                    </div>
-                  )}
-                </div>
-
-                                 {/* 状态信息 */}
-                 <div style={{
-                   display: "flex",
-                   flexWrap: "wrap",
-                   gap: 8,
-                   marginTop: 8,
-                   fontSize: 12
-                 }}>
-                   <span style={{
-                     padding: "2px 6px",
-                     borderRadius: 4,
-                     background: userData.isPublic ? "#10b981" : "#6b7280",
-                     color: "#fff"
-                   }}>
-                     {userData.isPublic ? "公开" : "私密"}
-                   </span>
-                   <span style={{ color: "#a1a1aa" }}>
-                     注册: {userData.createdAt}
-                   </span>
-                   <span style={{ color: "#a1a1aa" }}>
-                     最后登录: {userData.lastLoginAt}
-                   </span>
-                 </div>
-
-                                  {/* 操作按钮 */}
-                 <div style={{
-                   display: "flex",
-                   gap: 8,
-                   marginTop: 12
-                 }}>
-                   <button
-                     onClick={(e) => {
-                       e.preventDefault();
-                       e.stopPropagation();
-                       setDeleteConfirmUser(userData);
-                     }}
-                     disabled={deletingUserId === userData.uid}
-                     style={{
-                       padding: "6px 12px",
-                       borderRadius: 6,
-                       background: "#ef4444",
-                       color: "#fff",
-                       border: "none",
-                       fontSize: 12,
-                       cursor: deletingUserId === userData.uid ? "not-allowed" : "pointer",
-                       opacity: deletingUserId === userData.uid ? 0.6 : 1
-                     }}
-                   >
-                     {deletingUserId === userData.uid ? "删除中..." : "删除用户"}
-                   </button>
-                 </div>
-               </div>
-             </div>
+                {/* 删除按钮 */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDeleteConfirmUser(userData);
+                  }}
+                  disabled={deletingUserId === userData.uid}
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    background: "#ef4444",
+                    color: "#fff",
+                    border: "none",
+                    fontSize: 12,
+                    cursor: deletingUserId === userData.uid ? "not-allowed" : "pointer",
+                    opacity: deletingUserId === userData.uid ? 0.6 : 1,
+                    flexShrink: 0
+                  }}
+                >
+                  {deletingUserId === userData.uid ? "删除中..." : "删除"}
+                </button>
+              </div>
            </Link>
          </div>
         ))
