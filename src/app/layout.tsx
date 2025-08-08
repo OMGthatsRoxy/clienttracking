@@ -18,13 +18,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "健身教练客户管理系统",
-  description: "专业的健身教练客户管理系统，帮助教练更好地管理客户、课程和收入",
+  title: "TrainerLogbook",
+  description: "专业的健身教练日志管理系统，帮助教练更好地管理客户、课程和收入",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "教练管理"
+    title: "教练日志"
   },
   icons: {
     icon: [
@@ -55,7 +55,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="教练管理" />
+        <meta name="apple-mobile-web-app-title" content="教练日志" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body

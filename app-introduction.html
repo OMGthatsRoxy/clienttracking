@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrainerLogbook - 专为教练打造的专业平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background: #1a1a1a;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 24px;
+            font-weight: 400;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header .description {
+            font-size: 18px;
+            color: #ffffff;
+            max-width: 450px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            padding: 8px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .lang-btn.active {
+            background: #007aff;
+            color: white;
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .section {
+            padding: 50px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            color: #a0a0a0;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #333333;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .feature-description {
+            color: #a0a0a0;
+            margin-bottom: 16px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .feature-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .feature-list li {
+            padding: 6px 0;
+            color: #ffffff;
+            position: relative;
+            padding-left: 20px;
+            font-size: 15px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #007aff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .screenshots-section {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 40px 30px;
+            margin: 30px 0;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .screenshot-item {
+            text-align: center;
+            padding: 20px 16px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            border: 1px solid #333333;
+        }
+
+        .screenshot-item:hover {
+            transform: scale(1.02);
+        }
+
+        .screenshot-placeholder {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 36px;
+            color: #007aff;
+        }
+
+        .screenshot-item h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .screenshot-item p {
+            color: #a0a0a0;
+            font-size: 15px;
+        }
+
+        .stats-section {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            padding: 16px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #007aff;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .tech-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .tech-item {
+            padding: 12px 8px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            border: 1px solid #333333;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-1px);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 50px 0;
+            background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+            color: white;
+            border-radius: 16px;
+            margin: 30px 0;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #007aff;
+            padding: 14px 28px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #a0a0a0;
+            font-size: 14px;
+            border-top: 1px solid #333333;
+        }
+
+        .language-content {
+            display: none;
+        }
+
+        .language-content.active {
+            display: block;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fbfbfd 0%, #f5f5f7 100%);
+            border-radius: 12px;
+            padding: 30px 24px;
+            margin: 30px 0;
+            border: 1px solid #e5e5e7;
+        }
+
+        .highlight-box h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1d1d1f;
+        }
+
+        .highlight-box p {
+            font-size: 15px;
+            color: #86868b;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+            
+            .header .subtitle {
+                font-size: 20px;
+            }
+            
+            .section-title {
+                font-size: 28px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+
+            .language-switcher {
+                top: 10px;
+                right: 10px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .section {
+                padding: 40px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 语言切换器 -->
+    <div class="language-switcher">
+        <button class="lang-btn active" onclick="switchLanguage('zh')">中文</button>
+        <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+        <button class="lang-btn" onclick="switchLanguage('ms')">Bahasa Melayu</button>
+    </div>
+
+    <div class="container">
+        <!-- 中文内容 -->
+        <div class="language-content active" id="zh">
+            <div class="header">
+                <h1>TrainerLogbook</h1>
+                <div class="subtitle">专为健身教练打造的专业平台</div>
+                <div class="description">高效管理客户、配套与课程，助力教练提升服务质量与业务增长</div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">强大功能，专为教练设计</h2>
+                    <div class="section-subtitle">全面的客户管理解决方案，让您的健身事业更上一层楼</div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">👥</span>
+                        <h3 class="feature-title">客户管理</h3>
+                        <p class="feature-description">全面管理客户信息，建立完整客户档案</p>
+                        <ul class="feature-list">
+                            <li>客户信息录入与管理</li>
+                            <li>健身目标设定与跟踪</li>
+                            <li>课程记录与进度管理</li>
+                            <li>客户搜索与筛选</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">🎯</span>
+                        <h3 class="feature-title">潜在客户管理</h3>
+                        <p class="feature-description">系统化管理潜在客户，提高转化率</p>
+                        <ul class="feature-list">
+                            <li>潜在客户信息录入</li>
+                            <li>转化状态跟踪</li>
+                            <li>联系记录管理</li>
+                            <li>转化率统计</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📅</span>
+                        <h3 class="feature-title">课程排期</h3>
+                        <p class="feature-description">智能排课系统，避免时间冲突</p>
+                        <ul class="feature-list">
+                            <li>可视化课程日历</li>
+                            <li>时间冲突检测</li>
+                            <li>课程提醒功能</li>
+                            <li>灵活调整排期</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📦</span>
+                        <h3 class="feature-title">配套管理</h3>
+                        <p class="feature-description">灵活管理健身配套，支持多种计费</p>
+                        <ul class="feature-list">
+                            <li>多种配套类型</li>
+                            <li>灵活定价策略</li>
+                            <li>使用次数跟踪</li>
+                            <li>到期提醒功能</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📝</span>
+                        <h3 class="feature-title">课程记录</h3>
+                        <p class="feature-description">详细记录课程内容，跟踪训练进度</p>
+                        <ul class="feature-list">
+                            <li>训练项目记录</li>
+                            <li>客户反馈收集</li>
+                            <li>进度评估记录</li>
+                            <li>历史记录查询</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h3 class="feature-title">数据统计</h3>
+                        <p class="feature-description">全面数据分析，制定发展策略</p>
+                        <ul class="feature-list">
+                            <li>月度活跃客户统计</li>
+                            <li>收入数据分析</li>
+                            <li>课程完成率统计</li>
+                            <li>客户增长趋势</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">精美界面，直观体验</h2>
+                    <div class="section-subtitle">现代化的设计语言，让每一次操作都变得简单高效</div>
+                </div>
+
+                <div class="screenshots-section">
+                    <h2 style="color: #ffffff; margin-bottom: 15px; text-align: center;">📱 应用界面展示</h2>
+                    <div class="screenshots-grid">
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- 模拟仪表板界面 -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="width: 60px; height: 8px; background: #007aff; border-radius: 4px;"></div>
+                                    <div style="width: 40px; height: 8px; background: #28a745; border-radius: 4px;"></div>
+                                    <div style="width: 50px; height: 8px; background: #ffc107; border-radius: 4px;"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="width: 45px; height: 8px; background: #dc3545; border-radius: 4px;"></div>
+                                    <div style="width: 55px; height: 8px; background: #6f42c1; border-radius: 4px;"></div>
+                                    <div style="width: 35px; height: 8px; background: #17a2b8; border-radius: 4px;"></div>
+                                </div>
+                                <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">O</div>
+                                <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; color: #a0a0a0;">Welcome, Oscar</div>
+                            </div>
+                            <h4>首页仪表板</h4>
+                            <p>数据概览与快速操作</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- 模拟客户管理界面 -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Clients</div>
+                                    <div style="width: 60px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">+ Client</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">Coach</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">3464564564</div>
+                                    </div>
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">Ivy Wong</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">0112847263</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>客户管理</h4>
+                            <p>客户列表与详细信息</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- 模拟课程排期界面 -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Session Schedule</div>
+                                    <div style="width: 40px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">Week</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 8px;">
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Mon</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Tue</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Wed</div>
+                                    <div style="text-align: center; font-size: 8px; color: #007aff; background: #007aff20; border-radius: 4px;">Thu</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Fri</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Sat</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Sun</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;">
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #007aff; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <h4>课程排期</h4>
+                            <p>可视化课程日历</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- 模拟潜在客户界面 -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Prospects</div>
+                                    <div style="width: 80px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">+ Prospect</div>
+                                </div>
+                                <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">Total Prospects: 2</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">coach</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">34645645645</div>
+                                    </div>
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">KF Wong</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">0187464638</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>潜在客户</h4>
+                            <p>潜在客户管理</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">系统优势</h2>
+                    <div class="section-subtitle">专为现代健身教练打造的核心优势</div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">⚡</div>
+                            <div class="stat-label">高效管理</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">📱</div>
+                            <div class="stat-label">移动优化</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">🔒</div>
+                            <div class="stat-label">安全可靠</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">🌐</div>
+                            <div class="stat-label">云端同步</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">技术特色</h2>
+                </div>
+                <div class="tech-section">
+                    <div class="tech-grid">
+                        <div class="tech-item">React 19</div>
+                        <div class="tech-item">TypeScript</div>
+                        <div class="tech-item">Tailwind CSS</div>
+                        <div class="tech-item">Firebase</div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="cta-section">
+                <h2>准备好提升您的健身教练业务了吗？</h2>
+                <p>立即体验我们的系统，开始高效管理您的客户和课程</p>
+                <a href="http://localhost:3001" class="cta-button">立即体验系统</a>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2024 TrainerLogbook. 专为健身教练打造的专业管理平台.</p>
+            </div>
+        </div>
+
+        <!-- English Content -->
+        <div class="language-content" id="en">
+            <div class="header">
+                <h1>Fitness Trainer Client Management System</h1>
+                <div class="subtitle">Professional platform designed for fitness trainers</div>
+                <div class="description">Efficiently manage clients, packages, and courses to enhance service quality and business growth</div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Powerful Features, Designed for Trainers</h2>
+                    <div class="section-subtitle">Comprehensive client management solution to elevate your fitness business</div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">👥</span>
+                        <h3 class="feature-title">Client Management</h3>
+                        <p class="feature-description">Comprehensive client information management</p>
+                        <ul class="feature-list">
+                            <li>Client information entry & management</li>
+                            <li>Fitness goal setting & tracking</li>
+                            <li>Course records & progress management</li>
+                            <li>Client search & filtering</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">🎯</span>
+                        <h3 class="feature-title">Prospect Management</h3>
+                        <p class="feature-description">Systematic prospect management</p>
+                        <ul class="feature-list">
+                            <li>Prospect information entry</li>
+                            <li>Conversion status tracking</li>
+                            <li>Contact record management</li>
+                            <li>Conversion rate statistics</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📅</span>
+                        <h3 class="feature-title">Course Scheduling</h3>
+                        <p class="feature-description">Smart scheduling system</p>
+                        <ul class="feature-list">
+                            <li>Visual course calendar</li>
+                            <li>Time conflict detection</li>
+                            <li>Course reminder function</li>
+                            <li>Flexible schedule adjustment</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📦</span>
+                        <h3 class="feature-title">Package Management</h3>
+                        <p class="feature-description">Flexible fitness package management</p>
+                        <ul class="feature-list">
+                            <li>Multiple package types</li>
+                            <li>Flexible pricing strategies</li>
+                            <li>Usage tracking</li>
+                            <li>Expiry reminders</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📝</span>
+                        <h3 class="feature-title">Course Records</h3>
+                        <p class="feature-description">Detailed course content recording</p>
+                        <ul class="feature-list">
+                            <li>Training program records</li>
+                            <li>Client feedback collection</li>
+                            <li>Progress assessment records</li>
+                            <li>Historical record queries</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h3 class="feature-title">Data Analytics</h3>
+                        <p class="feature-description">Comprehensive data analysis</p>
+                        <ul class="feature-list">
+                            <li>Monthly active client statistics</li>
+                            <li>Revenue data analysis</li>
+                            <li>Course completion rate statistics</li>
+                            <li>Client growth trends</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Beautiful Interface, Intuitive Experience</h2>
+                    <div class="section-subtitle">Modern design language makes every operation simple and efficient</div>
+                </div>
+
+                <div class="screenshots-section">
+                    <h2 style="color: #ffffff; margin-bottom: 15px; text-align: center;">📱 Application Interface Display</h2>
+                    <div class="screenshots-grid">
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Dashboard interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="width: 60px; height: 8px; background: #007aff; border-radius: 4px;"></div>
+                                    <div style="width: 40px; height: 8px; background: #28a745; border-radius: 4px;"></div>
+                                    <div style="width: 50px; height: 8px; background: #ffc107; border-radius: 4px;"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="width: 45px; height: 8px; background: #dc3545; border-radius: 4px;"></div>
+                                    <div style="width: 55px; height: 8px; background: #6f42c1; border-radius: 4px;"></div>
+                                    <div style="width: 35px; height: 8px; background: #17a2b8; border-radius: 4px;"></div>
+                                </div>
+                                <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">O</div>
+                                <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; color: #a0a0a0;">Welcome, Oscar</div>
+                            </div>
+                            <h4>Homepage Dashboard</h4>
+                            <p>Data overview & quick operations</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Client management interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Clients</div>
+                                    <div style="width: 60px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">+ Client</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">Coach</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">3464564564</div>
+                                    </div>
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">Ivy Wong</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">0112847263</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>Client Management</h4>
+                            <p>Client list & detailed information</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Course scheduling interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Session Schedule</div>
+                                    <div style="width: 40px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">Week</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 8px;">
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Mon</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Tue</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Wed</div>
+                                    <div style="text-align: center; font-size: 8px; color: #007aff; background: #007aff20; border-radius: 4px;">Thu</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Fri</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Sat</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Sun</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;">
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #007aff; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <h4>Course Schedule</h4>
+                            <p>Visualized course calendar</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Prospects interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Prospects</div>
+                                    <div style="width: 80px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">+ Prospect</div>
+                                </div>
+                                <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">Total Prospects: 2</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">coach</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">34645645645</div>
+                                    </div>
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">KF Wong</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">0187464638</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>Potential Clients</h4>
+                            <p>Prospect management</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">System Advantages</h2>
+                    <div class="section-subtitle">Core advantages designed for modern fitness trainers</div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">⚡</div>
+                            <div class="stat-label">Efficient Management</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">📱</div>
+                            <div class="stat-label">Mobile Optimized</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">🔒</div>
+                            <div class="stat-label">Secure & Reliable</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">🌐</div>
+                            <div class="stat-label">Cloud Sync</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Technical Features</h2>
+                </div>
+                <div class="tech-section">
+                    <div class="tech-grid">
+                        <div class="tech-item">React 19</div>
+                        <div class="tech-item">TypeScript</div>
+                        <div class="tech-item">Tailwind CSS</div>
+                        <div class="tech-item">Firebase</div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="cta-section">
+                <h2>Ready to enhance your fitness training business?</h2>
+                <p>Experience our system now and start managing your clients and courses efficiently</p>
+                <a href="http://localhost:3001" class="cta-button">Try System Now</a>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2024 Fitness Trainer Client Management System. Professional management platform for fitness trainers.</p>
+            </div>
+        </div>
+
+        <!-- Bahasa Melayu Content -->
+        <div class="language-content" id="ms">
+            <div class="header">
+                <h1>Sistem Pengurusan Pelanggan Jurulatih Kecergasan</h1>
+                <div class="subtitle">Platform profesional untuk jurulatih kecergasan</div>
+                <div class="description">Menguruskan pelanggan, pakej, dan kursus dengan cekap untuk meningkatkan kualiti perkhidmatan dan pertumbuhan perniagaan</div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Ciri Berkuasa, Direka untuk Jurulatih</h2>
+                    <div class="section-subtitle">Penyelesaian pengurusan pelanggan yang komprehensif untuk meningkatkan perniagaan kecergasan anda</div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">👥</span>
+                        <h3 class="feature-title">Pengurusan Pelanggan</h3>
+                        <p class="feature-description">Pengurusan maklumat pelanggan yang komprehensif</p>
+                        <ul class="feature-list">
+                            <li>Kemasukan & pengurusan maklumat pelanggan</li>
+                            <li>Penetapan & penjejakan matlamat kecergasan</li>
+                            <li>Rekod kursus & pengurusan kemajuan</li>
+                            <li>Carian & penapis pelanggan</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">🎯</span>
+                        <h3 class="feature-title">Pengurusan Prospek</h3>
+                        <p class="feature-description">Pengurusan prospek yang sistematik</p>
+                        <ul class="feature-list">
+                            <li>Kemasukan maklumat prospek</li>
+                            <li>Penjejakan status penukaran</li>
+                            <li>Pengurusan rekod hubungan</li>
+                            <li>Statistik kadar penukaran</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📅</span>
+                        <h3 class="feature-title">Jadual Kursus</h3>
+                        <p class="feature-description">Sistem jadual pintar</p>
+                        <ul class="feature-list">
+                            <li>Kalendar kursus visual</li>
+                            <li>Pengesanan konflik masa</li>
+                            <li>Fungsi peringatan kursus</li>
+                            <li>Pelarasan jadual yang fleksibel</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📦</span>
+                        <h3 class="feature-title">Pengurusan Pakej</h3>
+                        <p class="feature-description">Pengurusan pakej kecergasan yang fleksibel</p>
+                        <ul class="feature-list">
+                            <li>Pelbagai jenis pakej</li>
+                            <li>Strategi harga yang fleksibel</li>
+                            <li>Penjejakan penggunaan</li>
+                            <li>Peringatan tamat tempoh</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📝</span>
+                        <h3 class="feature-title">Rekod Kursus</h3>
+                        <p class="feature-description">Rekod kandungan kursus yang terperinci</p>
+                        <ul class="feature-list">
+                            <li>Rekod program latihan</li>
+                            <li>Pengumpulan maklum balas pelanggan</li>
+                            <li>Rekod penilaian kemajuan</li>
+                            <li>Pertanyaan rekod sejarah</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h3 class="feature-title">Analisis Data</h3>
+                        <p class="feature-description">Analisis data yang komprehensif</p>
+                        <ul class="feature-list">
+                            <li>Statistik pelanggan aktif bulanan</li>
+                            <li>Analisis data pendapatan</li>
+                            <li>Statistik kadar penyelesaian kursus</li>
+                            <li>Trend pertumbuhan pelanggan</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Antara Muka Cantik, Pengalaman Intuitif</h2>
+                    <div class="section-subtitle">Bahasa reka bentuk moden menjadikan setiap operasi mudah dan cekap</div>
+                </div>
+
+                <div class="screenshots-section">
+                    <h2 style="color: #ffffff; margin-bottom: 15px; text-align: center;">📱 Paparan Antara Muka Aplikasi</h2>
+                    <div class="screenshots-grid">
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Dashboard interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="width: 60px; height: 8px; background: #007aff; border-radius: 4px;"></div>
+                                    <div style="width: 40px; height: 8px; background: #28a745; border-radius: 4px;"></div>
+                                    <div style="width: 50px; height: 8px; background: #ffc107; border-radius: 4px;"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="width: 45px; height: 8px; background: #dc3545; border-radius: 4px;"></div>
+                                    <div style="width: 55px; height: 8px; background: #6f42c1; border-radius: 4px;"></div>
+                                    <div style="width: 35px; height: 8px; background: #17a2b8; border-radius: 4px;"></div>
+                                </div>
+                                <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">O</div>
+                                <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; color: #a0a0a0;">Welcome, Oscar</div>
+                            </div>
+                            <h4>Papan Pemuka Utama</h4>
+                            <p>Gambaran data & operasi pantas</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Client management interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Clients</div>
+                                    <div style="width: 60px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">+ Client</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">Coach</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">3464564564</div>
+                                    </div>
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">Ivy Wong</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">0112847263</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>Pengurusan Pelanggan</h4>
+                            <p>Senarai pelanggan & maklumat terperinci</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Course scheduling interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Session Schedule</div>
+                                    <div style="width: 40px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">Week</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 8px;">
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Mon</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Tue</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Wed</div>
+                                    <div style="text-align: center; font-size: 8px; color: #007aff; background: #007aff20; border-radius: 4px;">Thu</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Fri</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Sat</div>
+                                    <div style="text-align: center; font-size: 8px; color: #a0a0a0;">Sun</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;">
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #007aff; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                    <div style="height: 8px; background: #2a2a2a; border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <h4>Jadual Kursus</h4>
+                            <p>Kalendar kursus yang divisualkan</p>
+                        </div>
+                        <div class="screenshot-item">
+                            <div class="screenshot-image" style="width: 100%; height: 140px; background: #1a1a1a; border-radius: 8px; margin-bottom: 16px; border: 1px solid #333333; padding: 12px; position: relative; overflow: hidden;">
+                                <!-- Prospects interface simulation -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #ffffff; font-weight: bold;">Prospects</div>
+                                    <div style="width: 80px; height: 20px; background: #007aff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">+ Prospect</div>
+                                </div>
+                                <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 8px;">Total Prospects: 2</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">coach</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">34645645645</div>
+                                    </div>
+                                    <div style="background: #2a2a2a; border-radius: 6px; padding: 8px;">
+                                        <div style="font-size: 10px; color: #ffffff; margin-bottom: 4px;">KF Wong</div>
+                                        <div style="font-size: 8px; color: #a0a0a0;">0187464638</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>Pelanggan Berpotensi</h4>
+                            <p>Pengurusan prospek</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Kelebihan Sistem</h2>
+                    <div class="section-subtitle">Kelebihan teras direka untuk jurulatih kecergasan moden</div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">⚡</div>
+                            <div class="stat-label">Pengurusan Cekap</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">📱</div>
+                            <div class="stat-label">Dioptimumkan Mobile</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">🔒</div>
+                            <div class="stat-label">Selamat & Boleh Dipercayai</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">🌐</div>
+                            <div class="stat-label">Sinkronisasi Awan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Ciri Teknikal</h2>
+                </div>
+                <div class="tech-section">
+                    <div class="tech-grid">
+                        <div class="tech-item">React 19</div>
+                        <div class="tech-item">TypeScript</div>
+                        <div class="tech-item">Tailwind CSS</div>
+                        <div class="tech-item">Firebase</div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="cta-section">
+                <h2>Sedia untuk meningkatkan perniagaan latihan kecergasan anda?</h2>
+                <p>Cuba sistem kami sekarang dan mula menguruskan pelanggan dan kursus anda dengan cekap</p>
+                <a href="http://localhost:3001" class="cta-button">Cuba Sistem Sekarang</a>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2024 Sistem Pengurusan Pelanggan Jurulatih Kecergasan. Platform pengurusan profesional untuk jurulatih kecergasan.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            // Hide all language content
+            const contents = document.querySelectorAll('.language-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected language content
+            document.getElementById(lang).classList.add('active');
+
+            // Update language buttons
+            const buttons = document.querySelectorAll('.lang-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update document language
+            document.documentElement.lang = lang;
+        }
+    </script>
+</body>
+</html>

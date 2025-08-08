@@ -1,7 +1,7 @@
 {
-  "name": "健身教练客户管理系统",
-  "short_name": "教练管理",
-  "description": "专业的健身教练客户管理系统",
+  "name": "TrainerLogbook",
+  "short_name": "教练日志",
+  "description": "专业的健身教练日志管理系统",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#18181b",

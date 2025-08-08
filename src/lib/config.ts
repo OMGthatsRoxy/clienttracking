@@ -10,7 +10,7 @@ export const config = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-1GK1JHRNBC"
   },
   app: {
-    name: "健身教练客户管理系统",
+    name: "TrainerLogbook",
     version: "1.0.0",
     maxFileSize: 5 * 1024 * 1024, // 5MB
     supportedImageTypes: ['image/jpeg', 'image/png', 'image/webp'],
